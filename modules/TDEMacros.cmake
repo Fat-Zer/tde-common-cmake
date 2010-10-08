@@ -407,11 +407,12 @@ macro( tde_add_library _arg_target )
     set_target_properties( ${_target} PROPERTIES VERSION ${_version} SOVERSION ${_soversion} )
   endif( _version )
 
+  # set interface libraries
+  target_link_libraries( ${_target} LINK_INTERFACE_LIBRARIES ${_link} )
+
   # set embedded archives
   if( _embed )
-    list( INSERT _link 0 "-Wl,-no-whole-archive" )
-    list( INSERT _link 0 ${_embed} )
-    list( INSERT _link 0 "-Wl,-whole-archive" )
+    list( INSERT _link 0 -Wl,-whole-archive ${_embed} -Wl,-no-whole-archive )
   endif( _embed )
 
   # set link libraries
