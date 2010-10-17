@@ -52,37 +52,37 @@ if( NOT QT_FOUND )
 
   # try to find path to qt.h
   # we assume that this path is Qt's include path
-  find_path( QT_INCLUDE_DIR qt.h
-    ${QT_INCLUDE_DIR}
+  find_path( QT_INCLUDE_DIRS qt.h
+    ${QT_INCLUDE_DIRS}
     ${QTDIR}/include
     $ENV{QTDIR}/include )
 
-  if( NOT QT_INCLUDE_DIR )
+  if( NOT QT_INCLUDE_DIRS )
 
     tde_message_fatal(
  "Unable to find qt.h!
  Qt are correctly installed?
- Try to set QT_INCLUDE_DIR manually.
- Example: cmake -DQT_INCLUDE_DIR=/usr/qt/3/include" )
+ Try to set QT_INCLUDE_DIRS manually.
+ Example: cmake -DQT_INCLUDE_DIRS=/usr/qt/3/include" )
 
-  endif( NOT QT_INCLUDE_DIR )
+  endif( NOT QT_INCLUDE_DIRS )
 
   # try to find libqt-mt.so
   # we assume that this is Qt's libraries path
-  find_path( QT_LIBRARY_DIR libqt-mt.so
-    ${QT_LIBRARY_DIR}
+  find_path( QT_LIBRARY_DIRS libqt-mt.so
+    ${QT_LIBRARY_DIRS}
     ${QTDIR}/lib
     $ENV{QTDIR}/lib )
 
-  if( NOT QT_LIBRARY_DIR )
+  if( NOT QT_LIBRARY_DIRS )
 
     tde_message_fatal(
  "Unable to find libqt-mt.so!
  Qt are correctly installed?
- Try to set QT_LIBRARY_DIR manually.
- Example: cmake -DQT_LIBRARY_DIR=/usr/qt/3/lib" )
+ Try to set QT_LIBRARY_DIRS manually.
+ Example: cmake -DQT_LIBRARY_DIRS=/usr/qt/3/lib" )
 
-  endif( NOT QT_LIBRARY_DIR )
+  endif( NOT QT_LIBRARY_DIRS )
 
   message( STATUS "  found Qt, version ${__version}" )
   set( QT_FOUND true CACHE INTERNAL QT_FOUND FORCE )
