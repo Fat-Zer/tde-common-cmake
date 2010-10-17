@@ -1,5 +1,17 @@
 #################################################
 #####
+##### tde_message_fatal
+
+macro( tde_message_fatal )
+  message( FATAL_ERROR
+    "#################################################\n"
+    " ${ARGV}\n"
+    "#################################################" )
+endmacro( tde_message_fatal )
+
+
+#################################################
+#####
 ##### tde_install_icons( <icons...> THEME <svgicons> DESTINATION <destdir> )
 ##### default theme: hicolor
 ##### default destination: ${SHARE_INSTALL_DIR}/icons

@@ -11,18 +11,6 @@
 
 #################################################
 #####
-##### __tde_internal_setup_paths_error
-
-macro( __tde_internal_setup_paths_error )
-  message( FATAL_ERROR
-    "#################################################\n"
-    " ${ARGV}\n"
-    "#################################################" )
-endmacro( __tde_internal_setup_paths_error )
-
-
-#################################################
-#####
 ##### __tde_internal_setup_paths_status
 
 macro( __tde_internal_setup_paths_status __path __value __method )
@@ -46,7 +34,7 @@ macro( __tde_internal_setup_path __path __default )
         RESULT_VARIABLE __result
         OUTPUT_STRIP_TRAILING_WHITESPACE )
       if( __result )
-        __tde_internal_setup_paths_error( "Unable to run kde-config!\n kdelibs are correctly installed?\n LD_LIBRARY_PATH are correctly set?" )
+        tde_message_fatal( "Unable to run kde-config!\n kdelibs are correctly installed?\n LD_LIBRARY_PATH are correctly set?" )
       endif( __result )
     endif( _use_kdeconfig AND __kdeconfig_type )
     if( ${__path} )
@@ -97,7 +85,7 @@ macro( tde_setup_paths )
         HINTS $ENV{KDEDIR}/bin
         PATHS "${EPREFIX}/bin" "${PREFIX}/bin" "${CMAKE_INSTALL_PREFIX}/bin" )
       if( NOT KDECONFIG_EXECUTABLE )
-        __tde_internal_setup_paths_error(
+        tde_message_fatal(
 
 "kde-config executable are NOT found!
  kdelibs(-devel) are installed? EPREFIX are correctly set?
