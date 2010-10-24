@@ -11,40 +11,15 @@
 
 #################################################
 #####
-##### __tde_internal_setup_paths_status
+##### tde_internal_setup_path
 
-macro( __tde_internal_setup_paths_status __path __value __method )
-  message( STATUS "  ${__path}=${__value} [${__method}]" )
-endmacro( __tde_internal_setup_paths_status )
-
-
-#################################################
-#####
-##### __tde_internal_setup_path
-
-macro( __tde_internal_setup_path __path __default )
-  set( __method "user" )
-  if( NOT ${__path} )
-    set( __method "default" )
-    set( __kdeconfig_type ${ARGV2} )
-    if( _use_kdeconfig AND __kdeconfig_type )
-      execute_process(
-        COMMAND ${KDECONFIG_EXECUTABLE} --expandvars --install ${__kdeconfig_type}
-        OUTPUT_VARIABLE ${__path}
-        RESULT_VARIABLE __result
-        OUTPUT_STRIP_TRAILING_WHITESPACE )
-      if( __result )
-        tde_message_fatal( "Unable to run kde-config!\n kdelibs are correctly installed?\n LD_LIBRARY_PATH are correctly set?" )
-      endif( __result )
-    endif( _use_kdeconfig AND __kdeconfig_type )
-    if( ${__path} )
-      set( __method "kde-config" )
-    else( ${__path} )
-      set( ${__path} "${__default}" )
-    endif( ${__path} )
-  endif( NOT ${__path} )
-  __tde_internal_setup_paths_status( ${__path} ${${__path}} ${__method} )
-endmacro( __tde_internal_setup_path )
+macro( _tde_internal_setup_path _path _default _comment )
+  if( DEFINED ${_path} )
+    set( ${_path} "${${_path}}" CACHE PATH "${_comment}" )
+  else( DEFINED ${_path} )
+    set( ${_path} "${_default}" )
+  endif( DEFINED ${_path} )
+endmacro( _tde_internal_setup_path )
 
 
 #################################################
@@ -53,123 +28,39 @@ endmacro( __tde_internal_setup_path )
 
 macro( tde_setup_paths )
 
-  message( STATUS "Setup install paths:" )
+  # install paths
+  _tde_internal_setup_path( EXEC_INSTALL_PREFIX       "${CMAKE_INSTALL_PREFIX}"                     "Base directory for executables and libraries" )
+  _tde_internal_setup_path( SHARE_INSTALL_PREFIX      "${CMAKE_INSTALL_PREFIX}/share"               "Base directory for files which go to share/" )
+  _tde_internal_setup_path( BIN_INSTALL_DIR           "${EXEC_INSTALL_PREFIX}/bin"                  "The install dir for executables (default ${EXEC_INSTALL_PREFIX}/bin)" )
+  _tde_internal_setup_path( SBIN_INSTALL_DIR          "${EXEC_INSTALL_PREFIX}/sbin"                 "The install dir for system executables (default ${EXEC_INSTALL_PREFIX}/sbin)" )
+  _tde_internal_setup_path( LIB_INSTALL_DIR           "${EXEC_INSTALL_PREFIX}/lib${LIB_SUFFIX}"     "The subdirectory relative to the install prefix where libraries will be installed (default is ${EXEC_INSTALL_PREFIX}/lib${LIB_SUFFIX})" )
+  _tde_internal_setup_path( LIBEXEC_INSTALL_DIR       "${LIB_INSTALL_DIR}/kde3/libexec"             "The subdirectory relative to the install prefix where libraries will be installed (default is ${LIB_INSTALL_DIR}/kde3/libexec)" )
+  _tde_internal_setup_path( INCLUDE_INSTALL_DIR       "${CMAKE_INSTALL_PREFIX}/include"             "The subdirectory to the header prefix" )
 
-  # --prefix
-  # install architecture-independent files in PREFIX
-  if( NOT PREFIX )
-    set( __method "CMAKE_INSTALL_PREFIX" )
-    set( PREFIX "${CMAKE_INSTALL_PREFIX}" )
-  else( NOT PREFIX )
-    # PREFIX have precedence over CMAKE_INSTALL_PREFIX
-    set( __method "user" )
-    set( CMAKE_INSTALL_PREFIX "${PREFIX}" )
-  endif( NOT PREFIX )
-  __tde_internal_setup_paths_status( PREFIX ${PREFIX} ${__method} )
+  _tde_internal_setup_path( PLUGIN_INSTALL_DIR        "${LIB_INSTALL_DIR}/kde3"                     "The subdirectory relative to the install prefix where plugins will be installed (default is ${LIB_INSTALL_DIR}/kde3)" )
+  _tde_internal_setup_path( CONFIG_INSTALL_DIR        "${SHARE_INSTALL_PREFIX}/config"              "The config file install dir" )
+  _tde_internal_setup_path( DATA_INSTALL_DIR          "${SHARE_INSTALL_PREFIX}/apps"                "The parent directory where applications can install their data" )
+  _tde_internal_setup_path( HTML_INSTALL_DIR          "${SHARE_INSTALL_PREFIX}/doc/HTML"            "The HTML install dir for documentation" )
+  _tde_internal_setup_path( ICON_INSTALL_DIR          "${SHARE_INSTALL_PREFIX}/icons"               "The icon install dir (default ${SHARE_INSTALL_PREFIX}/share/icons/)" )
+  _tde_internal_setup_path( KCFG_INSTALL_DIR          "${SHARE_INSTALL_PREFIX}/config.kcfg"         "The install dir for kconfig files" )
+  _tde_internal_setup_path( LOCALE_INSTALL_DIR        "${SHARE_INSTALL_PREFIX}/locale"              "The install dir for translations" )
+  _tde_internal_setup_path( APPS_INSTALL_DIR          "${SHARE_INSTALL_PREFIX}/applnk"              "The install dir for the application desktop files" )
+  _tde_internal_setup_path( MIME_INSTALL_DIR          "${SHARE_INSTALL_PREFIX}/mimelnk"             "The install dir for the mimetype desktop files" )
+  _tde_internal_setup_path( SERVICES_INSTALL_DIR      "${SHARE_INSTALL_PREFIX}/services"            "The install dir for service (desktop, protocol, ...) files" )
+  _tde_internal_setup_path( SERVICETYPES_INSTALL_DIR  "${SHARE_INSTALL_PREFIX}/servicetypes"        "The install dir for servicestypes desktop files" )
+  _tde_internal_setup_path( SOUND_INSTALL_DIR         "${SHARE_INSTALL_PREFIX}/sounds"              "The install dir for sound files" )
+  _tde_internal_setup_path( TEMPLATES_INSTALL_DIR     "${SHARE_INSTALL_PREFIX}/templates"           "The install dir for templates (Create new file...)" )
+  _tde_internal_setup_path( WALLPAPER_INSTALL_DIR     "${SHARE_INSTALL_PREFIX}/wallpapers"          "The install dir for wallpapers" )
+  _tde_internal_setup_path( KCONF_UPDATE_INSTALL_DIR  "${DATA_INSTALL_DIR}/kconf_update"            "The kconf_update install dir" )
+  _tde_internal_setup_path( AUTOSTART_INSTALL_DIR     "${SHARE_INSTALL_PREFIX}/autostart"           "The install dir for autostart files" )
 
-  # --exec-prefix
-  # install architecture-dependent files in EPREFIX
-  if( NOT EPREFIX )
-    set( __method "default" )
-    set( EPREFIX "${PREFIX}" )
-  endif( NOT EPREFIX )
-  __tde_internal_setup_paths_status( EPREFIX ${EPREFIX} ${__method} )
+  _tde_internal_setup_path( SYSCONF_INSTALL_DIR       "${CMAKE_INSTALL_PREFIX}/etc"                 "The sysconfig install dir (default ${CMAKE_INSTALL_PREFIX}/etc)" )
+  _tde_internal_setup_path( MAN_INSTALL_DIR           "${SHARE_INSTALL_PREFIX}/man"                 "The man install dir (default ${SHARE_INSTALL_PREFIX}/man/)" )
+  _tde_internal_setup_path( INFO_INSTALL_DIR          "${SHARE_INSTALL_PREFIX}/info"                "The info install dir (default ${SHARE_INSTALL_PREFIX}/info)" )
 
-  # we will using kde-config for discover paths
-  set( _use_kdeconfig ${ARGV0} )
-  if( _use_kdeconfig )
-    # KDECONFIG_EXECUTABLE is not set, so will must to search for it
-    if( NOT KDECONFIG_EXECUTABLE )
-      find_program( KDECONFIG_EXECUTABLE
-        NAMES kde-config
-        HINTS $ENV{KDEDIR}/bin
-        PATHS "${EPREFIX}/bin" "${PREFIX}/bin" "${CMAKE_INSTALL_PREFIX}/bin" )
-      if( NOT KDECONFIG_EXECUTABLE )
-        tde_message_fatal(
-
-"kde-config executable are NOT found!
- kdelibs(-devel) are installed? EPREFIX are correctly set?
- Try to set KDECONFIG_EXECUTABLE to kde-config path.
- Example: cmake -DKDECONFIG_EXECUTABLE=/usr/kde/3.5/bin/kde-config" )
-
-      endif( NOT KDECONFIG_EXECUTABLE )
-    endif( NOT KDECONFIG_EXECUTABLE )
-  endif( _use_kdeconfig )
-
-  # --bindir
-  # user executables
-  __tde_internal_setup_path( BINDIR "${EPREFIX}/bin" "exe" )
-
-  # --sbindir
-  # system admin executables
-  __tde_internal_setup_path( SBINDIR "${EPREFIX}/sbin" )
-
-  # --libexecdir
-  # program executables
-  __tde_internal_setup_path( LIBEXECDIR "${EPREFIX}/libexec" )
-
-  # --sysconfdir
-  # read-only single-machine data
-  __tde_internal_setup_path( SYSCONFDIR "${PREFIX}/etc" )
-
-  # --sharedstatedir
-  # modifiable architecture-independent data
-  __tde_internal_setup_path( SHAREDSTATEDIR "${PREFIX}/com" )
-
-  # --localstatedir
-  # modifiable single-machine data
-  __tde_internal_setup_path( LOCALSTATEDIR "${PREFIX}/var" )
-
-  # --libdir
-  # object code libraries
-  __tde_internal_setup_path( LIBDIR "${EPREFIX}/lib" "lib" )
-
-  # --includedir
-  # C header files
-  __tde_internal_setup_path( INCLUDEDIR "${PREFIX}/include" "include" )
-
-  # --oldincludedir
-  # C header files for non-gcc
-  __tde_internal_setup_path( OLDINCLUDEDIR "/usr/include" )
-
-  # --datarootdir
-  # read-only arch.-independent data root
-  __tde_internal_setup_path( DATAROOTDIR "${PREFIX}/share" )
-
-  # --datadir
-  # read-only architecture-independent data
-  __tde_internal_setup_path( DATADIR "${DATAROOTDIR}" )
-
-  # --infodir
-  # info documentation
-  __tde_internal_setup_path( INFODIR "${DATAROOTDIR}/info" )
-
-  # --localedir
-  # locale-dependent data
-  __tde_internal_setup_path( LOCALEDIR "${DATAROOTDIR}/locale" )
-
-  # --mandir
-  # man documentation
-  __tde_internal_setup_path( MANDIR "${DATAROOTDIR}/man" )
-
-  # --docdir
-  # documentation root
-  __tde_internal_setup_path( DOCDIR "${DATAROOTDIR}/doc/${PACKAGE}" )
-
-  # --htmldir
-  # html documentation
-  __tde_internal_setup_path( HTMLDIR "${DOCDIR}" "html" )
-
-  # --dvidir
-  # dvi documentation
-  __tde_internal_setup_path( DVIDIR "${DOCDIR}" )
-
-  # --pdfdir
-  # pdf documentation
-  __tde_internal_setup_path( PDFDIR "${DOCDIR}" )
-
-  # --psdir
-  # ps documentation
-  __tde_internal_setup_path( PSDIR "${DOCDIR}" )
+  _tde_internal_setup_path( XDG_MENU_INSTALL_DIR      "${SYSCONF_INSTALL_DIR}/xdg/menus"            "The XDG menus dir" )
+  _tde_internal_setup_path( XDG_APPS_INSTALL_DIR      "${SHARE_INSTALL_PREFIX}/applications/kde"    "The XDG apps dir" )
+  _tde_internal_setup_path( XDG_DIRECTORY_INSTALL_DIR "${SHARE_INSTALL_PREFIX}/desktop-directories" "The XDG directory" )
+  _tde_internal_setup_path( XDG_MIME_INSTALL_DIR      "${SHARE_INSTALL_PREFIX}/mime/packages"       "The install dir for the xdg mimetypes" )
 
 endmacro( tde_setup_paths )
