@@ -50,7 +50,7 @@ macro( tde_install_icons )
     set( _icons "*" )
   endif( NOT _icons )
   if( NOT _dest )
-    set( _dest "${SHARE_INSTALL_DIR}/icons" )
+    set( _dest "${ICON_INSTALL_DIR}" )
   endif( NOT _dest )
 
   foreach( _icon ${_icons} )
@@ -181,6 +181,74 @@ endmacro( tde_install_la_file )
 
 #################################################
 #####
+##### tde_add_ui_files
+
+macro( tde_add_ui_files _sources )
+  foreach( _ui_file ${ARGN} )
+
+    get_filename_component( _ui_basename ${_ui_file} NAME_WE )
+    get_filename_component( _ui_absolute_path ${_ui_file} ABSOLUTE )
+
+    list( APPEND ${_sources} ${_ui_basename}.cpp )
+
+    add_custom_command( OUTPUT ${_ui_basename}.h ${_ui_basename}.cpp
+      COMMAND ${QT_UIC_EXECUTABLE} ${_ui_absolute_path} -nounload -o ${_ui_basename}.h
+      COMMAND ${QT_UIC_EXECUTABLE} ${_ui_absolute_path} -nounload -impl ${_ui_basename}.h -o ${_ui_basename}.cpp
+      COMMAND ${QT_MOC_EXECUTABLE} ${_ui_basename}.h >> ${_ui_basename}.cpp
+      DEPENDS ${_ui_absolute_path} )
+
+  endforeach( _ui_file )
+endmacro( tde_add_ui_files )
+
+
+#################################################
+#####
+##### tde_automoc
+
+macro( tde_automoc )
+  foreach( _src_file ${ARGN} )
+
+    get_filename_component( _src_file "${_src_file}" ABSOLUTE )
+
+    if( EXISTS "${_src_file}" )
+
+      # read source file and check if have moc include
+      file( READ "${_src_file}" _src_content )
+      string( REGEX MATCHALL "#include +[^ ]+\\.moc[\">]" _moc_includes "${_src_content}" )
+
+      # found included moc(s)?
+      if( _moc_includes )
+        foreach( _moc_file ${_moc_includes} )
+
+          # extracting moc filename
+          string( REGEX MATCH "[^ <\"]+\\.moc" _moc_file "${_moc_file}" )
+          set( _moc_file "${CMAKE_CURRENT_BINARY_DIR}/${_moc_file}" )
+
+          # create header filename
+          get_filename_component( _src_path "${_src_file}" PATH )
+          get_filename_component( _header_file "${_moc_file}" NAME_WE )
+          set( _header_file "${_src_path}/${_header_file}.h" )
+
+          # moc-ing header
+          add_custom_command( OUTPUT ${_moc_file}
+            COMMAND ${TQT_TMOC_EXECUTABLE} ${_header_file} -o ${_moc_file}
+            DEPENDS ${_header_file} )
+
+          # create dependency between source file and moc file
+          set_property( SOURCE ${_src_file} APPEND PROPERTY OBJECT_DEPENDS ${_moc_file} )
+
+        endforeach( _moc_file )
+
+      endif( _moc_includes )
+
+    endif( EXISTS "${_src_file}" )
+
+  endforeach( _src_file )
+endmacro( tde_automoc )
+
+
+#################################################
+#####
 ##### __tde_internal_process_sources
 
 macro( __tde_internal_process_sources _sources )
@@ -199,7 +267,7 @@ macro( __tde_internal_process_sources _sources )
 
     # handle .ui files
     if( ${_ext} STREQUAL ".ui" )
-      kde3_add_ui_files( ${_sources} ${_arg} )
+      tde_add_ui_files( ${_sources} ${_arg} )
 
     # handle .skel files
     elseif( ${_ext} STREQUAL ".skel" )
@@ -368,8 +436,8 @@ macro( tde_add_library _arg_target )
 
     # storing value
     if( _storage AND NOT _skip_store )
-      #set( ${_storage} "${${_storage}} ${_arg}" )
       list( APPEND ${_storage} ${_arg} )
+      list( REMOVE_DUPLICATES ${_storage} )
     endif( _storage AND NOT _skip_store )
 
   endforeach( _arg )
@@ -385,8 +453,14 @@ macro( tde_add_library _arg_target )
   endif( NOT _type )
 
   # change target name, based on type
-  string( TOLOWER "${_type}" _target )
-  set( _target "${_arg_target}-${_target}" )
+  string( TOLOWER "${_type}" _type_lower )
+  set( _target "${_arg_target}-${_type_lower}" )
+
+  # create variables like "LIB_xxx" for convenience
+  if( ${_type} STREQUAL "SHARED" )
+    string( TOUPPER "${_arg_target}" _tmp )
+    set( LIB_${_tmp} ${_target} CACHE INTERNAL LIB_${tmp} FORCE )
+  endif( ${_type} STREQUAL "SHARED" )
 
   # disallow target without sources
   if( NOT _sources )
@@ -398,7 +472,7 @@ macro( tde_add_library _arg_target )
 
   # set automoc
   if( _automoc )
-    kde3_automoc( ${_sources} )
+    tde_automoc( ${_sources} )
   endif( _automoc )
 
   # add target
@@ -542,7 +616,7 @@ macro( tde_add_executable _arg_target )
 
   # set automoc
   if( _automoc )
-    kde3_automoc( ${_sources} )
+    tde_automoc( ${_sources} )
   endif( _automoc )
 
   # add target
@@ -664,18 +738,18 @@ endmacro( tde_add_kdeinit_executable )
 macro( tde_install_symlink _target _link )
 
   # if path is relative, we must to prefix it with CMAKE_INSTALL_PREFIX
-  if( IS_ABSOLUTE ${_link} )
+  if( IS_ABSOLUTE "${_link}" )
     set( _destination "${_link}" )
-  else( IS_ABSOLUTE ${_link} )
+  else( IS_ABSOLUTE "${_link}" )
     set( _destination "${CMAKE_INSTALL_PREFIX}/${_link}" )
-  endif( IS_ABSOLUTE ${_link} )
+  endif( IS_ABSOLUTE "${_link}" )
 
   # prefix with DESTDIR
   set( _destination "$ENV{DESTDIR}${_destination}" )
 
-  get_filename_component( _path ${_destination} PATH )
+  get_filename_component( _path "${_destination}" PATH )
   if( NOT IS_DIRECTORY "${_path}" )
-    install( CODE "execute_process( COMMAND ${CMAKE_COMMAND} -E make_directory ${_path} )" )
+    install( CODE "file( MAKE_DIRECTORY \"${_path}\" )" )
   endif( NOT IS_DIRECTORY "${_path}" )
 
   install( CODE "execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink ${_target} ${_destination} )" )
@@ -690,15 +764,28 @@ endmacro( tde_install_symlink )
 macro( tde_install_empty_directory _path )
 
   # if path is relative, we must to prefix it with CMAKE_INSTALL_PREFIX
-  if( IS_ABSOLUTE ${_path} )
+  if( IS_ABSOLUTE "${_path}" )
     set( _destination "${_path}" )
-  else( IS_ABSOLUTE ${_path} )
+  else( IS_ABSOLUTE "${_path}" )
     set( _destination "${CMAKE_INSTALL_PREFIX}/${_path}" )
-  endif( IS_ABSOLUTE ${_path} )
+  endif( IS_ABSOLUTE "${_path}" )
 
   # prefix with DESTDIR
   set( _destination "$ENV{DESTDIR}${_destination}" )
 
-  install( CODE "execute_process( COMMAND ${CMAKE_COMMAND} -E make_directory ${_destination} )" )
+  install( CODE "file( MAKE_DIRECTORY \"${_destination}\" )" )
 
 endmacro( tde_install_empty_directory )
+
+
+#################################################
+#####
+##### tde_conditional_add_subdirectory
+
+macro( tde_conditional_add_subdirectory _cond _path )
+
+  if( ${_cond} )
+    add_subdirectory( "${_path}" )
+  endif( ${_cond} )
+
+endmacro( tde_conditional_add_subdirectory )
