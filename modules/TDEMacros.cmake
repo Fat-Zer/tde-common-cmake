@@ -356,6 +356,7 @@ macro( tde_add_library _arg_target )
   unset( _static_pic )
   unset( _automoc )
   unset( _no_libtool_file )
+  unset( _no_export )
   unset( _version )
   unset( _sources )
   unset( _destination )
@@ -396,6 +397,12 @@ macro( tde_add_library _arg_target )
       set( _skip_store 1 )
       set( _no_libtool_file 1 )
     endif( "${_arg}" STREQUAL "NO_LIBTOOL_FILE" )
+
+    # found directive "NO_EXPORT"
+    if( "${_arg}" STREQUAL "NO_EXPORT" )
+      set( _skip_store 1 )
+      set( _no_export 1 )
+    endif( "${_arg}" STREQUAL "NO_EXPORT" )
 
     # found directive "VERSION"
     if( "${_arg}" STREQUAL "VERSION" )
@@ -500,8 +507,17 @@ macro( tde_add_library _arg_target )
     set_target_properties( ${_target} PROPERTIES VERSION ${_version} SOVERSION ${_soversion} )
   endif( _version )
 
-  # set interface libraries
-  target_link_libraries( ${_target} LINK_INTERFACE_LIBRARIES ${_link} )
+  # set interface libraries (only for shared)
+  unset( _shared_libs )
+  foreach( _lib ${_link} )
+    #get_target_property( _lib_type ${_lib} TYPE )
+    #if( NOT "STATIC_LIBRARY" STREQUAL "${_lib_type}" )
+    if( NOT ${_lib} MATCHES ".+-static" )
+      list( APPEND _shared_libs ${_lib} )
+    endif( NOT ${_lib} MATCHES ".+-static" )
+    #endif( NOT "STATIC_LIBRARY" STREQUAL "${_lib_type}" )
+  endforeach( _lib )
+  target_link_libraries( ${_target} LINK_INTERFACE_LIBRARIES ${_shared_libs} )
 
   # set embedded archives
   if( _embed )
@@ -520,7 +536,13 @@ macro( tde_add_library _arg_target )
 
   # set destination directory
   if( _destination )
-    install( TARGETS ${_target} DESTINATION ${_destination} )
+    if( "SHARED" STREQUAL ${_type} AND NOT _no_export )
+      # we export only shared libs (no static, no modules)
+      # also, do not export target marked as "NO_EXPORT" (usually for kdeinit)
+      install( TARGETS ${_target} DESTINATION ${_destination} EXPORT ${CMAKE_PROJECT_NAME} )
+    else( "SHARED" STREQUAL ${_type} AND NOT _no_export )
+      install( TARGETS ${_target} DESTINATION ${_destination} )
+    endif( "SHARED" STREQUAL ${_type} AND NOT _no_export  )
     if( NOT "STATIC" STREQUAL ${_type} AND NOT _no_libtool_file )
       tde_install_libtool_file( ${_target} ${_destination} )
     endif( NOT "STATIC" STREQUAL ${_type} AND NOT _no_libtool_file )
@@ -710,7 +732,7 @@ macro( tde_add_kdeinit_executable _target )
   endif( NOT _plugin_destination )
 
   # create the library
-  tde_add_library( kdeinit_${_target} ${_sources} SHARED
+  tde_add_library( kdeinit_${_target} ${_sources} SHARED NO_EXPORT
     DESTINATION ${_library_destination}
   )
 
@@ -744,15 +766,12 @@ macro( tde_install_symlink _target _link )
     set( _destination "${CMAKE_INSTALL_PREFIX}/${_link}" )
   endif( IS_ABSOLUTE "${_link}" )
 
-  # prefix with DESTDIR
-  set( _destination "$ENV{DESTDIR}${_destination}" )
-
   get_filename_component( _path "${_destination}" PATH )
-  if( NOT IS_DIRECTORY "${_path}" )
-    install( CODE "file( MAKE_DIRECTORY \"${_path}\" )" )
-  endif( NOT IS_DIRECTORY "${_path}" )
+  if( NOT IS_DIRECTORY "\$ENV{DESTDIR}${_path}" )
+    install( CODE "file( MAKE_DIRECTORY \"\$ENV{DESTDIR}${_path}\" )" )
+  endif( NOT IS_DIRECTORY "\$ENV{DESTDIR}${_path}" )
 
-  install( CODE "execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink ${_target} ${_destination} )" )
+  install( CODE "execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink ${_target} \$ENV{DESTDIR}${_destination} )" )
 
 endmacro( tde_install_symlink )
 
@@ -770,10 +789,7 @@ macro( tde_install_empty_directory _path )
     set( _destination "${CMAKE_INSTALL_PREFIX}/${_path}" )
   endif( IS_ABSOLUTE "${_path}" )
 
-  # prefix with DESTDIR
-  set( _destination "$ENV{DESTDIR}${_destination}" )
-
-  install( CODE "file( MAKE_DIRECTORY \"${_destination}\" )" )
+  install( CODE "file( MAKE_DIRECTORY \"\$ENV{DESTDIR}${_destination}\" )" )
 
 endmacro( tde_install_empty_directory )
 

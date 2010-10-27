@@ -37,6 +37,7 @@ macro( tde_setup_paths )
   _tde_internal_setup_path( LIBEXEC_INSTALL_DIR       "${LIB_INSTALL_DIR}/kde3/libexec"             "The subdirectory relative to the install prefix where libraries will be installed (default is ${LIB_INSTALL_DIR}/kde3/libexec)" )
   _tde_internal_setup_path( INCLUDE_INSTALL_DIR       "${CMAKE_INSTALL_PREFIX}/include"             "The subdirectory to the header prefix" )
 
+  _tde_internal_setup_path( CMAKE_INSTALL_DIR         "${SHARE_INSTALL_PREFIX}/cmake"               "The install dir for cmake import modules" )
   _tde_internal_setup_path( PLUGIN_INSTALL_DIR        "${LIB_INSTALL_DIR}/kde3"                     "The subdirectory relative to the install prefix where plugins will be installed (default is ${LIB_INSTALL_DIR}/kde3)" )
   _tde_internal_setup_path( CONFIG_INSTALL_DIR        "${SHARE_INSTALL_PREFIX}/config"              "The config file install dir" )
   _tde_internal_setup_path( DATA_INSTALL_DIR          "${SHARE_INSTALL_PREFIX}/apps"                "The parent directory where applications can install their data" )
