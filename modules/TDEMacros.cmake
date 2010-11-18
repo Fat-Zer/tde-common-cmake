@@ -683,11 +683,20 @@ macro( tde_add_kdeinit_executable _target )
   # default storage is _sources
   set( _storage _sources )
 
+  # set default export to NO_EXPORT
+  set( _export "NO_EXPORT" )
+
   foreach( _arg ${ARGN} )
 
     # this variable help us to skip
     # storing unapropriate values (i.e. directives)
     unset( _skip_store )
+
+    # found directive "EXPORT"
+    if( "${_arg}" STREQUAL "EXPORT" )
+      set( _skip_store 1 )
+      unset( _export )
+    endif( "${_arg}" STREQUAL "EXPORT" )
 
     # found directive "RUNTIME_DESTINATION"
     if( "${_arg}" STREQUAL "RUNTIME_DESTINATION" )
@@ -732,7 +741,7 @@ macro( tde_add_kdeinit_executable _target )
   endif( NOT _plugin_destination )
 
   # create the library
-  tde_add_library( kdeinit_${_target} ${_sources} SHARED NO_EXPORT
+  tde_add_library( kdeinit_${_target} ${_sources} SHARED ${_export}
     DESTINATION ${_library_destination}
   )
 
