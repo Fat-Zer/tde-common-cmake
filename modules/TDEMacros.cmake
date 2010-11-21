@@ -210,7 +210,7 @@ macro( tde_add_ui_files _sources )
         -DQT_UIC_EXECUTABLE:FILEPATH=${QT_UIC_EXECUTABLE}
         -DTDE_QTPLUGINS_DIR:FILEPATH=${TDE_QTPLUGINS_DIR}
         -DUI_FILE:FILEPATH=${_ui_absolute_path}
-        -P ${TDE_CMAKE_DIR}/tde_uic.cmake
+        -P ${CMAKE_MODULE_PATH}/tde_uic.cmake
       COMMAND ${QT_MOC_EXECUTABLE} ${_ui_basename}.h >> ${_ui_basename}.cpp
       DEPENDS ${_ui_absolute_path} )
 
