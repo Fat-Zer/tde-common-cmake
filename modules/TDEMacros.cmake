@@ -1,4 +1,18 @@
 #################################################
+#
+#  (C) 2010 Serghei Amelian
+#  serghei (DOT) amelian (AT) gmail.com
+#
+#  Improvements and feedback are welcome
+#
+#  This file is released under GPL >= 2
+#
+#################################################
+
+include( KDE3Macros ) # we will need this module for a while
+
+
+#################################################
 #####
 ##### tde_message_fatal
 
@@ -192,8 +206,11 @@ macro( tde_add_ui_files _sources )
     list( APPEND ${_sources} ${_ui_basename}.cpp )
 
     add_custom_command( OUTPUT ${_ui_basename}.h ${_ui_basename}.cpp
-      COMMAND ${QT_UIC_EXECUTABLE} ${_ui_absolute_path} -nounload -o ${_ui_basename}.h
-      COMMAND ${QT_UIC_EXECUTABLE} ${_ui_absolute_path} -nounload -impl ${_ui_basename}.h -o ${_ui_basename}.cpp
+      COMMAND ${CMAKE_COMMAND}
+        -DQT_UIC_EXECUTABLE:FILEPATH=${QT_UIC_EXECUTABLE}
+        -DTDE_QTPLUGINS_DIR:FILEPATH=${TDE_QTPLUGINS_DIR}
+        -DUI_FILE:FILEPATH=${_ui_absolute_path}
+        -P ${TDE_CMAKE_DIR}/tde_uic.cmake
       COMMAND ${QT_MOC_EXECUTABLE} ${_ui_basename}.h >> ${_ui_basename}.cpp
       DEPENDS ${_ui_absolute_path} )
 
