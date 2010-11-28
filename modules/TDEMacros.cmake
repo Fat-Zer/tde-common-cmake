@@ -831,3 +831,21 @@ macro( tde_conditional_add_subdirectory _cond _path )
   endif( ${_cond} )
 
 endmacro( tde_conditional_add_subdirectory )
+
+
+#################################################
+#####
+##### tde_save / tde_restore
+
+macro( tde_save )
+  foreach( _var ${ARGN} )
+    set( __bak_${_var} ${${_var}} )
+  endforeach()
+endmacro()
+
+macro( tde_restore )
+  foreach( _var ${ARGN} )
+    set( ${_var} ${__bak_${_var}} )
+    unset( __bak_${_var} )
+  endforeach()
+endmacro()
