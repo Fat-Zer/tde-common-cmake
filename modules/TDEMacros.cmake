@@ -781,6 +781,17 @@ endmacro( tde_add_kdeinit_executable )
 
 #################################################
 #####
+##### tde_include_tqt
+
+macro( tde_include_tqt )
+  foreach( _cpp ${ARGN} )
+    set_source_files_properties( ${_cpp} PROPERTIES COMPILE_FLAGS "-include tqt.h" )
+  endforeach()
+endmacro( )
+
+
+#################################################
+#####
 ##### tde_install_symlink
 
 macro( tde_install_symlink _target _link )
