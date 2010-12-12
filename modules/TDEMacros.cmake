@@ -781,6 +781,106 @@ endmacro( tde_add_kdeinit_executable )
 
 #################################################
 #####
+##### tde_create_handbook
+
+macro( tde_create_handbook )
+
+  unset( _target )
+  unset( _dest )
+  unset( _srcs )
+
+  set( _lang en )
+  set( _first_arg 1 )
+  set( _var _target )
+
+  foreach( _arg ${ARGN} )
+
+    # found directive "FILES"
+    if( "${_arg}" STREQUAL "FILES" )
+      unset( _srcs )
+      set( _var _srcs )
+      set( _directive 1 )
+    endif()
+
+    # found directive DESTINATION
+    if( _arg STREQUAL "DESTINATION" )
+      unset( _dest )
+      set( _var _dest )
+      set( _directive 1 )
+    endif()
+
+    # found directive "LANG"
+    if( "${_arg}" STREQUAL "LANG" )
+      unset( _lang )
+      set( _var _lang )
+      set( _directive 1 )
+    endif()
+
+    # collect data
+    if( _directive )
+      unset( _directive )
+    elseif( _var )
+      if( _first_arg )
+        set( _target "${_arg}-handbook" )
+      else()
+        list( APPEND ${_var} ${_arg} )
+      endif()
+    endif()
+
+    unset( _first_arg )
+
+  endforeach()
+
+  # if no target specified, try to guess it from DESTIONATION
+  if( NOT _target )
+    if( NOT _dest )
+      tde_message_fatal( "target name cannot be determined because DESTINATION is not set" )
+    endif()
+    string( REPLACE "/" "-" _target "${_dest}-handbook" )
+  endif()
+
+  # if no file specified, include all docbooks and images
+  if( NOT _srcs )
+    file( GLOB _srcs RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.docbook *.png  )
+  endif()
+
+  # if no destination specified, defaulting to HTML_INSTALL_DIR
+  if( NOT _dest )
+    set( _dest "${HTML_INSTALL_DIR}/${_lang}" )
+  # if destination is NOT absolute path,
+  # we assume that is relative to HTML_INSTALL_DIR
+  elseif( NOT IS_ABSOLUTE ${_dest} )
+    set( _dest "${HTML_INSTALL_DIR}/${_lang}/${_dest}" )
+  endif()
+
+  if( NOT _srcs )
+    tde_message_fatal( "no docbook or png files" )
+  endif()
+
+  # check for index.docbook
+  list( FIND _srcs "index.docbook" _find_index )
+  if( -1 EQUAL _find_index )
+    tde_message_fatal( "missing index.docbook file" )
+  endif()
+
+  add_custom_command(
+    OUTPUT index.cache.bz2
+    COMMAND ${KDE3_MEINPROC_EXECUTABLE} --check --cache index.cache.bz2 ${CMAKE_CURRENT_SOURCE_DIR}/index.docbook
+    DEPENDS ${_srcs} )
+
+  add_custom_target( ${_target} ALL DEPENDS index.cache.bz2 )
+
+  install( FILES
+      ${CMAKE_CURRENT_BINARY_DIR}/index.cache.bz2 ${_srcs}
+    DESTINATION ${_dest} )
+
+  tde_install_symlink( ${TDE_HTML_DIR}/${_lang}/common ${_dest} )
+
+endmacro( )
+
+
+#################################################
+#####
 ##### tde_include_tqt
 
 macro( tde_include_tqt )
@@ -808,7 +908,7 @@ macro( tde_install_symlink _target _link )
     install( CODE "file( MAKE_DIRECTORY \"\$ENV{DESTDIR}${_path}\" )" )
   endif( NOT IS_DIRECTORY "\$ENV{DESTDIR}${_path}" )
 
-  install( CODE "execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink ${_target} \$ENV{DESTDIR}${_destination} )" )
+  install( CODE "execute_process( COMMAND ln -s ${_target} \$ENV{DESTDIR}${_destination} )" )
 
 endmacro( tde_install_symlink )
 
@@ -842,6 +942,22 @@ macro( tde_conditional_add_subdirectory _cond _path )
   endif( ${_cond} )
 
 endmacro( tde_conditional_add_subdirectory )
+
+
+#################################################
+#####
+##### tde_auto_add_subdirectories
+
+macro( tde_auto_add_subdirectories )
+  file( GLOB _dirs RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} * )
+  foreach( _dir ${_dirs} )
+    if( IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${_dir} )
+      if( NOT ${_dir} STREQUAL ".svn" AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${_dir}/CMakeLists.txt )
+        add_subdirectory( ${_dir} )
+      endif()
+    endif()
+  endforeach()
+endmacro()
 
 
 #################################################
