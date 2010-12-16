@@ -288,7 +288,7 @@ macro( __tde_internal_process_sources _sources )
 
     # handle .skel files
     elseif( ${_ext} STREQUAL ".skel" )
-      kde3_add_dcop_skels( ${_sources} ${_name}.h )
+      kde3_add_dcop_skels( ${_sources} ${_path}/${_name}.h )
 
     # handle .stub files
     elseif( ${_ext} STREQUAL ".stub" )
