@@ -364,6 +364,40 @@ endmacro( tde_install_libtool_file )
 
 #################################################
 #####
+##### tde_install_export / tde_import
+
+function( tde_install_export )
+  file( GLOB export_files ${CMAKE_CURRENT_BINARY_DIR}/export-*.cmake )
+
+  set( mode "WRITE" )
+  foreach( filename ${export_files} )
+    file( READ ${filename} content )
+    file( ${mode} "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.cmake" "${content}" )
+    set( mode "APPEND" )
+  endforeach( )
+
+  install( FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.cmake" DESTINATION ${CMAKE_INSTALL_DIR} )
+endfunction( )
+
+
+macro( tde_import _library )
+  message( STATUS "checking for '${_library}'" )
+  string( TOUPPER "BUILD_${_library}" _build )
+  if( ${_build} )
+    message( STATUS "  ok, activated for build" )
+  else()
+    if( EXISTS "${TDE_CMAKE_DIR}/${_library}.cmake" )
+      include( "${TDE_CMAKE_DIR}/${_library}.cmake" )
+      message( STATUS "  ok, found import file" )
+    else()
+      tde_message_fatal( "'${_library}' are required,\n but is not installed nor selected for build" )
+    endif()
+  endif()
+endmacro()
+
+
+#################################################
+#####
 ##### tde_add_library
 
 macro( tde_add_library _arg_target )
@@ -544,7 +578,7 @@ macro( tde_add_library _arg_target )
   # set link libraries
   if( _link )
     target_link_libraries( ${_target} ${_link} )
-  endif( _link )
+  endif( )
 
   # set dependencies
   if( _dependencies )
@@ -556,14 +590,19 @@ macro( tde_add_library _arg_target )
     if( "SHARED" STREQUAL ${_type} AND NOT _no_export )
       # we export only shared libs (no static, no modules)
       # also, do not export target marked as "NO_EXPORT" (usually for kdeinit)
-      install( TARGETS ${_target} DESTINATION ${_destination} EXPORT ${PROJECT_NAME} )
-    else( "SHARED" STREQUAL ${_type} AND NOT _no_export )
       install( TARGETS ${_target} DESTINATION ${_destination} )
-    endif( "SHARED" STREQUAL ${_type} AND NOT _no_export  )
+      get_target_property( _output ${_target} LOCATION )
+      get_filename_component( _output ${_output} NAME )
+      set( _location "${_destination}/${_output}.${_version}" )
+      set( _soname "${_output}.${_soversion}" )
+      configure_file( ${CMAKE_SOURCE_DIR}/cmake/modules/template_export_library.cmake "${PROJECT_BINARY_DIR}/export-${_target}.cmake" @ONLY )
+    else( )
+      install( TARGETS ${_target} DESTINATION ${_destination} )
+    endif( )
     if( NOT "STATIC" STREQUAL ${_type} AND NOT _no_libtool_file )
       tde_install_libtool_file( ${_target} ${_destination} )
-    endif( NOT "STATIC" STREQUAL ${_type} AND NOT _no_libtool_file )
-  endif( _destination )
+    endif( )
+  endif( )
 
 endmacro( tde_add_library )
 
