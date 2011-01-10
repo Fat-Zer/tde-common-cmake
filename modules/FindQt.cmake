@@ -84,9 +84,23 @@ if( NOT QT_FOUND )
 
   endif( NOT QT_LIBRARY_DIRS )
 
-  message( STATUS "  found Qt, version ${__version}" )
+  # check if Qt3 is patched for compatibility with TQt
+  tde_save( CMAKE_REQUIRED_INCLUDES CMAKE_REQUIRED_LIBRARIES )
+  set( CMAKE_REQUIRED_INCLUDES ${QT_INCLUDE_DIRS} )
+  set( CMAKE_REQUIRED_LIBRARIES -L${QT_LIBRARY_DIRS} qt-mt )
+  check_cxx_source_compiles("
+    #include <qobjectlist.h>
+    #include <qobject.h>
+    int main(int, char**) { QObject::objectTreesListObject(); return 0; } "
+    HAVE_PATCHED_QT3 )
+  tde_restore( CMAKE_REQUIRED_INCLUDES CMAKE_REQUIRED_LIBRARIES )
+  if( NOT HAVE_PATCHED_QT3 )
+    tde_message_fatal( "Your Qt3 is not patched for compatibility with tqtinterface" )
+  endif()
+
+  message( STATUS "  found patched Qt, version ${__version}" )
   set( QT_FOUND true CACHE INTERNAL QT_FOUND FORCE )
   set( QT_LIBRARIES "qt-mt" CACHE INTERNAL QT_LIBRARIES FORCE )
-  set( QT_DEFINITIONS "-DQT_NO_ASCII_CAST -DQT_CLEAN_NAMESPACE -DQT_NO_STL -DQT_NO_COMPAT -DQT_NO_TRANSLATION" CACHE INTERNAL QT_DEFINITIONS FORCE )
+  set( QT_DEFINITIONS "-DQT_NO_ASCII_CAST -DQT_CLEAN_NAMESPACE -DQT_NO_STL -DQT_NO_COMPAT -DQT_NO_TRANSLATION -DQT_THREAD_SUPPORT -D_REENTRANT" CACHE INTERNAL QT_DEFINITIONS FORCE )
 
 endif( NOT QT_FOUND )
