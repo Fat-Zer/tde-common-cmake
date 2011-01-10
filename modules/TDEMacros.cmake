@@ -585,24 +585,39 @@ macro( tde_add_library _arg_target )
     add_dependencies( ${_target} ${_dependencies} )
   endif( _dependencies )
 
-  # set destination directory
+  # if destination directory is set
   if( _destination )
+
+    # we export only shared libs (no static, no modules);
+    # also, do not export targets marked as "NO_EXPORT" (usually for kdeinit)
     if( "SHARED" STREQUAL ${_type} AND NOT _no_export )
-      # we export only shared libs (no static, no modules)
-      # also, do not export target marked as "NO_EXPORT" (usually for kdeinit)
-      install( TARGETS ${_target} DESTINATION ${_destination} )
+
+      # get target properties: output name, version, soversion
       get_target_property( _output ${_target} LOCATION )
       get_filename_component( _output ${_output} NAME )
-      set( _location "${_destination}/${_output}.${_version}" )
-      set( _soname "${_output}.${_soversion}" )
+      get_target_property( _version ${_target} VERSION )
+      get_target_property( _soversion ${_target} SOVERSION )
+
+      if( _version )
+        set( _location "${_destination}/${_output}.${_version}" )
+        set( _soname "${_output}.${_soversion}" )
+      else( )
+        set( _location "${_destination}/${_output}" )
+        set( _soname "${_output}" )
+      endif( )
+
       configure_file( ${CMAKE_SOURCE_DIR}/cmake/modules/template_export_library.cmake "${PROJECT_BINARY_DIR}/export-${_target}.cmake" @ONLY )
-    else( )
-      install( TARGETS ${_target} DESTINATION ${_destination} )
     endif( )
+
+    # install target
+    install( TARGETS ${_target} DESTINATION ${_destination} )
+
+    # install .la files for dynamic libraries
     if( NOT "STATIC" STREQUAL ${_type} AND NOT _no_libtool_file )
       tde_install_libtool_file( ${_target} ${_destination} )
     endif( )
-  endif( )
+
+  endif( _destination )
 
 endmacro( tde_add_library )
 
