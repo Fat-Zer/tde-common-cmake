@@ -11,9 +11,14 @@
 
 get_filename_component( _ui_basename ${UI_FILE} NAME_WE )
 
+# FIXME this will working only on out-of-source mode
+set( local_ui_file ${_ui_basename}.ui )
+configure_file( ${UI_FILE} ${local_ui_file} COPYONLY )
+execute_process( COMMAND tqt-replace ${local_ui_file} )
+
 execute_process( COMMAND ${QT_UIC_EXECUTABLE}
   -nounload -tr tr2i18n
-  ${UI_FILE}
+  ${local_ui_file}
   OUTPUT_VARIABLE _ui_h_content )
 
 if( _ui_h_content )
@@ -30,7 +35,7 @@ execute_process( COMMAND ${QT_UIC_EXECUTABLE}
   -nounload -tr tr2i18n
   ${L}
   -impl ${_ui_basename}.h
-  ${UI_FILE}
+  ${local_ui_file}
   OUTPUT_VARIABLE _ui_cpp_content )
 
 if( _ui_cpp_content )
