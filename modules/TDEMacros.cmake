@@ -220,6 +220,27 @@ endmacro( tde_add_ui_files )
 
 #################################################
 #####
+##### tde_moc
+
+macro( tde_moc _sources )
+  foreach( _input_file ${ARGN} )
+
+    get_filename_component( _input_file "${_input_file}" ABSOLUTE )
+    get_filename_component( _basename ${_input_file} NAME_WE )
+    set( _output_file "${_basename}.moc.cpp" )
+    add_custom_command( OUTPUT ${_output_file}
+      COMMAND
+        ${TQT_TMOC_EXECUTABLE} ${_input_file} -o ${_output_file}
+      DEPENDS
+        ${_input_file} )
+    list( APPEND ${_sources} ${_output_file} )
+
+  endforeach( )
+endmacro( )
+
+
+#################################################
+#####
 ##### tde_automoc
 
 macro( tde_automoc )
