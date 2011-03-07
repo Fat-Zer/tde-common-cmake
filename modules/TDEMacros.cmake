@@ -264,8 +264,22 @@ macro( tde_automoc )
 
           # create header filename
           get_filename_component( _src_path "${_src_file}" PATH )
-          get_filename_component( _header_file "${_moc_file}" NAME_WE )
-          set( _header_file "${_src_path}/${_header_file}.h" )
+          get_filename_component( _src_file "${_moc_file}" NAME_WE )
+          set( _header_file "${_src_path}/${_src_file}.h" )
+
+          # if header doesn't exists, check in META_INCLUDES
+          if( NOT EXISTS "${_header_file}" )
+            foreach( _src_path ${_meta_includes} )
+              set( _header_file "${_src_path}/${_src_file}.h" )
+              if( EXISTS "${_header_file}" )
+                set( _found 1 )
+                break( )
+              endif( )
+            endforeach( )
+            if( NOT _found )
+              tde_message_fatal( "Source for ${_moc_file} doesn't exists." )
+            endif( )
+          endif( )
 
           # moc-ing header
           add_custom_command( OUTPUT ${_moc_file}
@@ -427,6 +441,7 @@ macro( tde_add_library _arg_target )
   unset( _type )
   unset( _static_pic )
   unset( _automoc )
+  unset( _meta_includes )
   unset( _no_libtool_file )
   unset( _no_export )
   unset( _version )
@@ -463,6 +478,12 @@ macro( tde_add_library _arg_target )
       set( _skip_store 1 )
       set( _automoc 1 )
     endif( "${_arg}" STREQUAL "AUTOMOC" )
+
+    # found directive "META_INCLUDES"
+    if( "${_arg}" STREQUAL "META_INCLUDES" )
+      set( _skip_store 1 )
+      set( _storage "_meta_includes" )
+    endif( )
 
     # found directive "NO_LIBTOOL_FILE"
     if( "${_arg}" STREQUAL "NO_LIBTOOL_FILE" )
@@ -660,6 +681,7 @@ macro( tde_add_executable _arg_target )
 
   unset( _target )
   unset( _automoc )
+  unset( _meta_includes )
   unset( _setuid )
   unset( _sources )
   unset( _destination )
@@ -678,6 +700,12 @@ macro( tde_add_executable _arg_target )
       set( _skip_store 1 )
       set( _automoc 1 )
     endif( "${_arg}" STREQUAL "AUTOMOC" )
+
+    # found directive "META_INCLUDES"
+    if( "${_arg}" STREQUAL "META_INCLUDES" )
+      set( _skip_store 1 )
+      set( _storage "_meta_includes" )
+    endif( )
 
     # found directive "SETUID"
     if( "${_arg}" STREQUAL "SETUID" )
