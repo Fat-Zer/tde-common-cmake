@@ -265,13 +265,14 @@ macro( tde_automoc )
           # create header filename
           get_filename_component( _src_path "${_src_file}" ABSOLUTE )
           get_filename_component( _src_path "${_src_path}" PATH )
-          get_filename_component( _src_file "${_moc_file}" NAME_WE )
-          set( _header_file "${_src_path}/${_src_file}.h" )
+          get_filename_component( _src_header "${_moc_file}" NAME_WE )
+          set( _header_file "${_src_path}/${_src_header}.h" )
 
           # if header doesn't exists, check in META_INCLUDES
           if( NOT EXISTS "${_header_file}" )
+            unset( _found )
             foreach( _src_path ${_meta_includes} )
-              set( _header_file "${_src_path}/${_src_file}.h" )
+              set( _header_file "${_src_path}/${_src_header}.h" )
               if( EXISTS "${_header_file}" )
                 set( _found 1 )
                 break( )
