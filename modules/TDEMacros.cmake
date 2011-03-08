@@ -263,7 +263,8 @@ macro( tde_automoc )
           set( _moc_file "${CMAKE_CURRENT_BINARY_DIR}/${_moc_file}" )
 
           # create header filename
-          get_filename_component( _src_path "${_src_file}" PATH )
+          get_filename_component( _src_path "${_src_file}" ABSOLUTE )
+          get_filename_component( _src_path "${_src_path}" PATH )
           get_filename_component( _src_file "${_moc_file}" NAME_WE )
           set( _header_file "${_src_path}/${_src_file}.h" )
 
@@ -277,7 +278,8 @@ macro( tde_automoc )
               endif( )
             endforeach( )
             if( NOT _found )
-              tde_message_fatal( "Source for ${_moc_file} doesn't exists." )
+              get_filename_component( _moc_file "${_moc_file}" NAME )
+              tde_message_fatal( "AUTOMOC error: '${_moc_file}' cannot be generated.\n Reason: '${_src_file}.h' not found." )
             endif( )
           endif( )
 
