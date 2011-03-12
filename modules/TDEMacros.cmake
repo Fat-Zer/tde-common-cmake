@@ -894,6 +894,7 @@ macro( tde_create_handbook )
   unset( _target )
   unset( _dest )
   unset( _srcs )
+  unset( _srcdir )
 
   set( _lang en )
   set( _first_arg 1 )
@@ -905,6 +906,13 @@ macro( tde_create_handbook )
     if( "${_arg}" STREQUAL "FILES" )
       unset( _srcs )
       set( _var _srcs )
+      set( _directive 1 )
+    endif()
+
+    # found directive "SRCDIR"
+    if( "${_arg}" STREQUAL "SRCDIR" )
+      unset( _srcdir )
+      set( _var _srcdir )
       set( _directive 1 )
     endif()
 
@@ -969,9 +977,14 @@ macro( tde_create_handbook )
     tde_message_fatal( "missing index.docbook file" )
   endif()
 
+  # check for srcdir
+  if( _srcdir )
+    set( _srcdir "--srcdir=${_srcdir}" )
+  endif()
+
   add_custom_command(
     OUTPUT index.cache.bz2
-    COMMAND ${KDE3_MEINPROC_EXECUTABLE} --check --cache index.cache.bz2 ${CMAKE_CURRENT_SOURCE_DIR}/index.docbook
+    COMMAND ${KDE3_MEINPROC_EXECUTABLE} ${_srcdir} --check --cache index.cache.bz2 ${CMAKE_CURRENT_SOURCE_DIR}/index.docbook
     DEPENDS ${_srcs} )
 
   add_custom_target( ${_target} ALL DEPENDS index.cache.bz2 )
@@ -980,7 +993,7 @@ macro( tde_create_handbook )
       ${CMAKE_CURRENT_BINARY_DIR}/index.cache.bz2 ${_srcs}
     DESTINATION ${_dest} )
 
-  tde_install_symlink( ${TDE_HTML_DIR}/${_lang}/common ${_dest} )
+  tde_install_symlink( ${HTML_INSTALL_DIR}/${_lang}/common ${_dest} )
 
 endmacro( )
 
