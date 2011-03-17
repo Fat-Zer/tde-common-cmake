@@ -894,6 +894,7 @@ macro( tde_create_handbook )
   unset( _target )
   unset( _dest )
   unset( _srcs )
+  unset( _extra )
   unset( _srcdir )
 
   set( _lang en )
@@ -906,6 +907,13 @@ macro( tde_create_handbook )
     if( "${_arg}" STREQUAL "FILES" )
       unset( _srcs )
       set( _var _srcs )
+      set( _directive 1 )
+    endif()
+
+    # found directive "EXTRA"
+    if( "${_arg}" STREQUAL "EXTRA" )
+      unset( _extra )
+      set( _var _extra )
       set( _directive 1 )
     endif()
 
@@ -953,9 +961,9 @@ macro( tde_create_handbook )
     string( REPLACE "/" "-" _target "${_dest}-handbook" )
   endif()
 
-  # if no file specified, include all docbooks and images
+  # if no file specified, include all docbooks, stylesheets and images
   if( NOT _srcs )
-    file( GLOB _srcs RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.docbook *.png  )
+    file( GLOB _srcs RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.docbook *.css *.png  )
   endif()
 
   # if no destination specified, defaulting to HTML_INSTALL_DIR
@@ -968,7 +976,7 @@ macro( tde_create_handbook )
   endif()
 
   if( NOT _srcs )
-    tde_message_fatal( "no docbook or png files" )
+    tde_message_fatal( "no source files" )
   endif()
 
   # check for index.docbook
@@ -990,7 +998,7 @@ macro( tde_create_handbook )
   add_custom_target( ${_target} ALL DEPENDS index.cache.bz2 )
 
   install( FILES
-      ${CMAKE_CURRENT_BINARY_DIR}/index.cache.bz2 ${_srcs}
+      ${CMAKE_CURRENT_BINARY_DIR}/index.cache.bz2 ${_srcs} ${_extra}
     DESTINATION ${_dest} )
 
   tde_install_symlink( ${HTML_INSTALL_DIR}/${_lang}/common ${_dest} )
