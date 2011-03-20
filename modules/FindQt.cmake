@@ -19,15 +19,91 @@ macro( __tde_internal_find_qt_program __progname __output )
   endif( NOT ${__output} )
 endmacro( __tde_internal_find_qt_program )
 
+option( WITH_QT3 "Use TQt for Qt3" ON )
+option( WITH_QT4 "Use TQt for Qt4 [EXPERIMENTAL]" OFF )
 
 if( NOT QT_FOUND )
+
+if( WITH_QT4 )
 
   # we search for moc only if is not already set (by user or previous run of cmake)
   if( NOT QT_MOC_EXECUTABLE )
     __tde_internal_find_qt_program( moc QT_MOC_EXECUTABLE )
   endif( NOT QT_MOC_EXECUTABLE )
 
-  message( STATUS "checking for 'Qt'")
+  message( STATUS "checking for 'Qt4'")
+
+  # we run moc, to check which qt version is using
+  execute_process(
+    COMMAND ${QT_MOC_EXECUTABLE} -v
+    ERROR_VARIABLE __output
+    RESULT_VARIABLE __result
+    ERROR_STRIP_TRAILING_WHITESPACE )
+
+  # parse moc response, to extract Qt version
+  if( __result EQUAL 1 )
+    string( REGEX MATCH "^.*Qt (.+)\\)$" __dummy  "${__output}" )
+    set( __version  "${CMAKE_MATCH_1}" )
+    if( NOT __version )
+      tde_message_fatal( "Invalid response from moc:\n ${__output}" )
+    endif( NOT __version )
+  else( __result EQUAL 1 )
+    tde_message_fatal( "Unable to run moc!\n Qt are correctly installed?\n LD_LIBRARY_PATH are correctly set?" )
+  endif( __result EQUAL 1 )
+
+  # search for uic
+  __tde_internal_find_qt_program( uic QT_UIC_EXECUTABLE )
+
+  # try to find path to qt.h
+  # we assume that this path is Qt's include path
+  find_path( QT_INCLUDE_DIRS Qt/qconfig.h
+    ${QT_INCLUDE_DIRS}
+    ${QTDIR}/include
+    $ENV{QTDIR}/include )
+
+  if( NOT QT_INCLUDE_DIRS )
+
+    tde_message_fatal(
+ "Unable to find qconfig.h!
+ Qt are correctly installed?
+ Try to set QT_INCLUDE_DIRS manually.
+ Example: cmake -DQT_INCLUDE_DIRS=/usr/qt/4/include" )
+
+  endif( NOT QT_INCLUDE_DIRS )
+
+  # try to find libQtCore.so
+  # we assume that this is Qt's libraries path
+  find_path( QT_LIBRARY_DIRS libQtCore.so
+    ${QT_LIBRARY_DIRS}
+    ${QTDIR}/lib
+    $ENV{QTDIR}/lib )
+
+  if( NOT QT_LIBRARY_DIRS )
+
+    tde_message_fatal(
+ "Unable to find libQtCore.so!
+ Qt are correctly installed?
+ Try to set QT_LIBRARY_DIRS manually.
+ Example: cmake -DQT_LIBRARY_DIRS=/usr/qt/4/lib" )
+
+  endif( NOT QT_LIBRARY_DIRS )
+
+  message( STATUS "  found Qt, version ${__version}" )
+  include_directories( ${QT_INCLUDE_DIRS} )
+  set( QT_FOUND true CACHE INTERNAL QT_FOUND FORCE )
+  set( QT_LIBRARIES "QtCore QtGui" CACHE INTERNAL QT_LIBRARIES FORCE )
+  set( QT_DEFINITIONS "-DQT_NO_ASCII_CAST -DQT_CLEAN_NAMESPACE -DQT_NO_STL -DQT_NO_COMPAT -DQT_NO_TRANSLATION -DQT_THREAD_SUPPORT -D_REENTRANT" CACHE INTERNAL QT_DEFINITIONS FORCE )
+
+endif( WITH_QT4 )
+
+if( WITH_QT3 )
+
+  # we search for moc only if is not already set (by user or previous run of cmake)
+  if( NOT QT_MOC_EXECUTABLE )
+    __tde_internal_find_qt_program( moc QT_MOC_EXECUTABLE )
+  endif( NOT QT_MOC_EXECUTABLE )
+
+  message( STATUS "checking for 'Qt3'")
 
   # we run moc, to check which qt version is using
   execute_process(
@@ -102,5 +178,7 @@ if( NOT QT_FOUND )
   set( QT_FOUND true CACHE INTERNAL QT_FOUND FORCE )
   set( QT_LIBRARIES "qt-mt" CACHE INTERNAL QT_LIBRARIES FORCE )
   set( QT_DEFINITIONS "-DQT_NO_ASCII_CAST -DQT_CLEAN_NAMESPACE -DQT_NO_STL -DQT_NO_COMPAT -DQT_NO_TRANSLATION -DQT_THREAD_SUPPORT -D_REENTRANT" CACHE INTERNAL QT_DEFINITIONS FORCE )
+
+endif( WITH_QT3 )
 
 endif( NOT QT_FOUND )
