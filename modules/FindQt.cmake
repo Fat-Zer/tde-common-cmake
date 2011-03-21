@@ -24,7 +24,26 @@ option( WITH_QT4 "Use TQt for Qt4 [EXPERIMENTAL]" OFF )
 
 if( NOT QT_FOUND )
 
+# See if TQt for Qt4 is available
+# HACK HACK HACK
+# This detection relies on the fact that TQt for Qt3 utilizes TQt.pc,
+# whereas TQt for Qt4 utilizes tqt.pc
+# Please find a better way to do this!
+pkg_search_module( TQT tqt )
+
+if( TQT_FOUND )
+  set( WITH_QT3 "OFF" )
+  set (WITH_QT4 "ON" )
+endif()
+
 if( WITH_QT4 )
+  # Set a default if not manually set
+  if ( NOT QT_INCLUDE_DIRS )
+    set( QT_INCLUDE_DIRS "/usr/include/qt4" )
+  endif ( NOT QT_INCLUDE_DIRS )
+  if ( NOT QT_LIBRARY_DIRS )
+    set( QT_LIBRARY_DIRS "/usr/lib" )
+  endif ( NOT QT_LIBRARY_DIRS )
 
   # we search for moc only if is not already set (by user or previous run of cmake)
   if( NOT QT_MOC_EXECUTABLE )
@@ -97,6 +116,13 @@ if( WITH_QT4 )
 endif( WITH_QT4 )
 
 if( WITH_QT3 )
+  # Set a default if not manually set
+  if ( NOT QT_INCLUDE_DIRS )
+    set( QT_INCLUDE_DIRS "/usr/include/qt3" )
+  endif ( NOT QT_INCLUDE_DIRS )
+  if ( NOT QT_LIBRARY_DIRS )
+    set( QT_LIBRARY_DIRS "/usr/lib" )
+  endif ( NOT QT_LIBRARY_DIRS )
 
   # we search for moc only if is not already set (by user or previous run of cmake)
   if( NOT QT_MOC_EXECUTABLE )
