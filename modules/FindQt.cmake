@@ -71,7 +71,7 @@ if( WITH_QT4 )
   endif( __result EQUAL 1 )
 
   # search for uic
-  __tde_internal_find_qt_program( uic QT_UIC_EXECUTABLE )
+  __tde_internal_find_qt_program( uic-tqt QT_UIC_EXECUTABLE )
 
   # try to find path to qt.h
   # we assume that this path is Qt's include path
