@@ -1001,7 +1001,7 @@ macro( tde_create_handbook )
       ${CMAKE_CURRENT_BINARY_DIR}/index.cache.bz2 ${_srcs} ${_extra}
     DESTINATION ${_dest} )
 
-  tde_install_symlink( ${HTML_INSTALL_DIR}/${_lang}/common ${_dest} )
+  tde_install_symlink( ${TDE_HTML_DIR}/${_lang}/common ${_dest} )
 
 endmacro( )
 
@@ -1103,3 +1103,16 @@ macro( tde_restore )
     unset( __bak_${_var} )
   endforeach()
 endmacro()
+
+
+#################################################
+#####
+##### tde_setup_install_path
+
+macro( tde_setup_install_path _path _default )
+  if( DEFINED ${_path} )
+    set( ${_path} "${${_path}}" CACHE INTERNAL "" FORCE )
+  else( )
+    set( ${_path} "${_default}" )
+  endif( )
+endmacro( )
