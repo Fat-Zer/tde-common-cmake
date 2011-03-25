@@ -1116,3 +1116,14 @@ macro( tde_setup_install_path _path _default )
     set( ${_path} "${_default}" )
   endif( )
 endmacro( )
+
+
+##################################################
+
+if( ${CMAKE_SOURCE_DIR} MATCHES ${CMAKE_BINARY_DIR} )
+    tde_message_fatal( "Please use out-of-source building, like this:
+ \n   rm ${CMAKE_SOURCE_DIR}/CMakeCache.txt
+   mkdir /tmp/${PROJECT_NAME}.build
+   cd /tmp/${PROJECT_NAME}.build
+   cmake ${CMAKE_SOURCE_DIR} [arguments...]" )
+endif( )
