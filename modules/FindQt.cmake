@@ -19,6 +19,7 @@ macro( __tde_internal_find_qt_program __progname __output )
   endif( NOT ${__output} )
 endmacro( __tde_internal_find_qt_program )
 
+option( AUTODETECT_QT_DIRS "Attempt to autodetect Qt location and version [EXPERIMENTAL]" OFF )
 option( WITH_QT3 "Use TQt for Qt3" ON )
 option( WITH_QT4 "Use TQt for Qt4 [EXPERIMENTAL]" OFF )
 
@@ -116,6 +117,15 @@ if( WITH_QT4 )
 endif( WITH_QT4 )
 
 if( WITH_QT3 )
+   # Set a default if not manually set
+   if ( AUTODETECT_QT_DIRS )
+     if ( NOT QT_INCLUDE_DIRS ) 	 
+       set( QT_INCLUDE_DIRS "/usr/include/qt3" ) 	 
+     endif ( NOT QT_INCLUDE_DIRS ) 	 
+     if ( NOT QT_LIBRARY_DIRS ) 	 
+       set( QT_LIBRARY_DIRS "/usr/lib" ) 	 
+     endif ( NOT QT_LIBRARY_DIRS )
+  endif ( AUTODETECT_QT_DIRS )
 
   # we search for moc only if is not already set (by user or previous run of cmake)
   if( NOT QT_MOC_EXECUTABLE )
