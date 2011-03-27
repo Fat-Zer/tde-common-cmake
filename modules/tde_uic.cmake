@@ -1,6 +1,6 @@
 #################################################
 #
-#  (C) 2010 Serghei Amelian
+#  (C) 2010-2011 Serghei Amelian
 #  serghei (DOT) amelian (AT) gmail.com
 #
 #  Improvements and feedback are welcome
@@ -16,7 +16,7 @@ set( local_ui_file ${_ui_basename}.ui )
 configure_file( ${UI_FILE} ${local_ui_file} COPYONLY )
 execute_process( COMMAND tqt-replace ${local_ui_file} )
 
-execute_process( COMMAND ${QT_UIC_EXECUTABLE}
+execute_process( COMMAND ${UIC_EXECUTABLE}
   -nounload -tr tr2i18n
   ${local_ui_file}
   OUTPUT_VARIABLE _ui_h_content )
@@ -31,7 +31,7 @@ if( TDE_QTPLUGINS_DIR )
   set( L -L ${TDE_QTPLUGINS_DIR} )
 endif( )
 
-execute_process( COMMAND ${QT_UIC_EXECUTABLE}
+execute_process( COMMAND ${UIC_EXECUTABLE}
   -nounload -tr tr2i18n
   ${L}
   -impl ${_ui_basename}.h

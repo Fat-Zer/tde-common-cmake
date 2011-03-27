@@ -1,6 +1,6 @@
 #################################################
 #
-#  (C) 2010 Serghei Amelian
+#  (C) 2010-2011 Serghei Amelian
 #  serghei (DOT) amelian (AT) gmail.com
 #
 #  Improvements and feedback are welcome
@@ -9,44 +9,73 @@
 #
 #################################################
 
-if( WITH_QT4 )
-
-pkg_search_module( TQT tqt )
-
-if( NOT TQT_FOUND )
-  tde_message_fatal( "Unable to find TQt for Qt4!\n Try adding the directory in which the tqt.pc file is located\nto the PKG_CONFIG_PATH variable." )
-endif()
-
-# under Qt4 the standard moc is used
-if( NOT TQT_TMOC_EXECUTABLE )
-  find_program( TQT_TMOC_EXECUTABLE
-    NAMES moc
-    HINTS ${TQTDIR}/bin $ENV{TQTDIR}/bin
-    PATHS ${BINDIR} )
-endif( NOT TQT_TMOC_EXECUTABLE )
-
-if ( TQT_LIBRARIES )
-  set( TQT_LIBRARIES "${TQT_LIBRARIES} -lQtCore -lQtGui" CACHE INTERNAL TQT_LIBRARIES FORCE )
-else ( TQT_LIBRARIES )
-  set( TQT_LIBRARIES "QtCore -lQtGui" CACHE INTERNAL TQT_LIBRARIES FORCE )
-endif ( TQT_LIBRARIES )
-
-endif( WITH_QT4 )
-
-if( WITH_QT3 )
+macro( tqt_message )
+  message( STATUS "${ARGN}" )
+endmacro( )
 
 pkg_search_module( TQT TQt )
 
 if( NOT TQT_FOUND )
-  tde_message_fatal( "Unable to find TQt for Qt3!\n Try adding the directory in which the TQt.pc file is located\nto the PKG_CONFIG_PATH variable." )
-endif()
+  tde_message_fatal( "Unable to find TQt!\n Try adding the directory in which the TQt.pc file is located\nto the PKG_CONFIG_PATH variable." )
+endif( )
 
-# for Qt3, find tmoc, a simple TQt wrapper around the standard moc
-if( NOT TQT_TMOC_EXECUTABLE )
-  find_program( TQT_TMOC_EXECUTABLE
-    NAMES tmoc
-    HINTS ${TQTDIR}/bin $ENV{TQTDIR}/bin
-    PATHS ${BINDIR} )
-endif( NOT TQT_TMOC_EXECUTABLE )
+# tmoc_executable
+execute_process(
+  COMMAND pkg-config TQt --variable=tmoc_executable
+  OUTPUT_VARIABLE TMOC_EXECUTABLE OUTPUT_STRIP_TRAILING_WHITESPACE )
 
-endif( WITH_QT3 )
+if( TMOC_EXECUTABLE )
+  tqt_message( "  tmoc path: ${TMOC_EXECUTABLE}" )
+else( )
+  tde_message_fatal( "Path to tmoc is not set.\n TQt is correctly installed?" )
+endif( )
+
+
+# moc_executable
+execute_process(
+  COMMAND pkg-config TQt --variable=moc_executable
+  OUTPUT_VARIABLE MOC_EXECUTABLE OUTPUT_STRIP_TRAILING_WHITESPACE )
+
+if( MOC_EXECUTABLE )
+  tqt_message( "  moc path: ${MOC_EXECUTABLE}" )
+else( )
+  tde_message_fatal( "Path to moc is not set.\n TQt is correctly installed?" )
+endif( )
+
+
+# uic_executable
+execute_process(
+  COMMAND pkg-config TQt --variable=uic_executable
+  OUTPUT_VARIABLE UIC_EXECUTABLE OUTPUT_STRIP_TRAILING_WHITESPACE )
+
+if( UIC_EXECUTABLE )
+  tqt_message( "  uic path: ${UIC_EXECUTABLE}" )
+else( )
+  tde_message_fatal( "Path to uic is not set.\n TQt is correctly installed?" )
+endif( )
+
+
+# check if TQt is usable
+tde_save( CMAKE_REQUIRED_INCLUDES CMAKE_REQUIRED_LIBRARIES )
+set( CMAKE_REQUIRED_INCLUDES ${TQT_INCLUDE_DIRS} )
+foreach( _dirs ${TQT_LIBRARY_DIRS} )
+  list( APPEND CMAKE_REQUIRED_LIBRARIES "-L${_dirs}" )
+endforeach()
+list( APPEND CMAKE_REQUIRED_LIBRARIES ${TQT_LIBRARIES} )
+
+check_cxx_source_compiles("
+    #include <tqapplication.h>
+    int main(int argc, char **argv) { TQApplication app(argc, argv); return 0; } "
+  HAVE_USABLE_TQT )
+
+if( NOT HAVE_USABLE_TQT )
+  tde_message_fatal( "Unable to build a simple TQt test." )
+endif( )
+
+tde_restore( CMAKE_REQUIRED_INCLUDES CMAKE_REQUIRED_LIBRARIES )
+
+
+# TQT_CXX_FLAGS
+foreach( _flag ${TQT_CFLAGS_OTHER} )
+  set( TQT_CXX_FLAGS "${TQT_CXX_FLAGS} ${_flag}" )
+endforeach()

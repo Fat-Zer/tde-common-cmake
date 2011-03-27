@@ -1,6 +1,6 @@
 #################################################
 #
-#  (C) 2010 Serghei Amelian
+#  (C) 2010-2011 Serghei Amelian
 #  serghei (DOT) amelian (AT) gmail.com
 #
 #  Improvements and feedback are welcome
@@ -207,11 +207,11 @@ macro( tde_add_ui_files _sources )
 
     add_custom_command( OUTPUT ${_ui_basename}.h ${_ui_basename}.cpp
       COMMAND ${CMAKE_COMMAND}
-        -DQT_UIC_EXECUTABLE:FILEPATH=${QT_UIC_EXECUTABLE}
+        -DUIC_EXECUTABLE:FILEPATH=${UIC_EXECUTABLE}
         -DTDE_QTPLUGINS_DIR:FILEPATH=${TDE_QTPLUGINS_DIR}
         -DUI_FILE:FILEPATH=${_ui_absolute_path}
         -P ${CMAKE_MODULE_PATH}/tde_uic.cmake
-      COMMAND ${QT_MOC_EXECUTABLE} ${_ui_basename}.h >> ${_ui_basename}.cpp
+      COMMAND ${MOC_EXECUTABLE} ${_ui_basename}.h >> ${_ui_basename}.cpp
       DEPENDS ${_ui_absolute_path} )
 
   endforeach( _ui_file )
@@ -227,10 +227,10 @@ macro( tde_moc _sources )
 
     get_filename_component( _input_file "${_input_file}" ABSOLUTE )
     get_filename_component( _basename ${_input_file} NAME_WE )
-    set( _output_file "${_basename}.moc.cpp" )
+    set( _output_file "${_basename}.moc" )
     add_custom_command( OUTPUT ${_output_file}
       COMMAND
-        ${TQT_TMOC_EXECUTABLE} ${_input_file} -o ${_output_file}
+        ${TMOC_EXECUTABLE} ${_input_file} -o ${_output_file}
       DEPENDS
         ${_input_file} )
     list( APPEND ${_sources} ${_output_file} )
@@ -286,7 +286,7 @@ macro( tde_automoc )
 
           # moc-ing header
           add_custom_command( OUTPUT ${_moc_file}
-            COMMAND ${TQT_TMOC_EXECUTABLE} ${_header_file} -o ${_moc_file}
+            COMMAND ${TMOC_EXECUTABLE} ${_header_file} -o ${_moc_file}
             DEPENDS ${_header_file} )
 
           # create dependency between source file and moc file
