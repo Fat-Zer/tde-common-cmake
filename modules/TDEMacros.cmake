@@ -84,6 +84,7 @@ macro( tde_install_icons )
 
         # autodetect theme
         if( NOT _req_theme )
+          unset( _theme )
           if( "${_type}" STREQUAL "cr" )
             set( _theme crystalsvg )
           elseif( "${_type}" STREQUAL "lo" )
