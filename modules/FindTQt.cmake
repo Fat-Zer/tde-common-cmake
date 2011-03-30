@@ -13,27 +13,35 @@ macro( tqt_message )
   message( STATUS "${ARGN}" )
 endmacro( )
 
-pkg_search_module( TQT TQt )
+SET( TQT_PKGCFG_NAME "TQt" )
+pkg_search_module( TQT ${TQT_PKGCFG_NAME} )
 
 if( NOT TQT_FOUND )
-  tde_message_fatal( "Unable to find TQt!\n Try adding the directory in which the TQt.pc file is located\nto the PKG_CONFIG_PATH variable." )
+  SET( TQT_PKGCFG_NAME "tqt" )
+  pkg_search_module( TQT ${TQT_PKGCFG_NAME} )
+  set( SKIP_TMOC TRUE )
+  if( NOT TQT_FOUND )
+    tde_message_fatal( "Unable to find TQt!\n Try adding the directory in which the TQt.pc file is located\nto the PKG_CONFIG_PATH variable." )
+  endif( )
 endif( )
 
 # tmoc_executable
 execute_process(
-  COMMAND pkg-config TQt --variable=tmoc_executable
+  COMMAND pkg-config ${TQT_PKGCFG_NAME} --variable=tmoc_executable
   OUTPUT_VARIABLE TMOC_EXECUTABLE OUTPUT_STRIP_TRAILING_WHITESPACE )
 
-if( TMOC_EXECUTABLE )
-  tqt_message( "  tmoc path: ${TMOC_EXECUTABLE}" )
-else( )
-  tde_message_fatal( "Path to tmoc is not set.\n TQt is correctly installed?" )
+if( NOT SKIP_TMOC )
+  if( TMOC_EXECUTABLE )
+    tqt_message( "  tmoc path: ${TMOC_EXECUTABLE}" )
+  else( )
+    tde_message_fatal( "Path to tmoc is not set.\n TQt is correctly installed?" )
+  endif( )
 endif( )
 
 
 # moc_executable
 execute_process(
-  COMMAND pkg-config TQt --variable=moc_executable
+  COMMAND pkg-config ${TQT_PKGCFG_NAME} --variable=moc_executable
   OUTPUT_VARIABLE MOC_EXECUTABLE OUTPUT_STRIP_TRAILING_WHITESPACE )
 
 if( MOC_EXECUTABLE )
@@ -45,7 +53,7 @@ endif( )
 
 # uic_executable
 execute_process(
-  COMMAND pkg-config TQt --variable=uic_executable
+  COMMAND pkg-config ${TQT_PKGCFG_NAME} --variable=uic_executable
   OUTPUT_VARIABLE UIC_EXECUTABLE OUTPUT_STRIP_TRAILING_WHITESPACE )
 
 if( UIC_EXECUTABLE )
