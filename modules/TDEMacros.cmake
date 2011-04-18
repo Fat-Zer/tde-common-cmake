@@ -894,6 +894,7 @@ macro( tde_create_handbook )
 
   unset( _target )
   unset( _dest )
+  unset( _noindex )
   unset( _srcs )
   unset( _extra )
   unset( _srcdir )
@@ -903,6 +904,12 @@ macro( tde_create_handbook )
   set( _var _target )
 
   foreach( _arg ${ARGN} )
+
+    # found directive "NOINDEX"
+    if( "${_arg}" STREQUAL "NOINDEX" )
+      set( _noindex 1 )
+      set( _directive 1 )
+    endif()
 
     # found directive "FILES"
     if( "${_arg}" STREQUAL "FILES" )
@@ -944,7 +951,7 @@ macro( tde_create_handbook )
       unset( _directive )
     elseif( _var )
       if( _first_arg )
-        set( _target "${_arg}-handbook" )
+        set( _target "${_arg}" )
       else()
         list( APPEND ${_var} ${_arg} )
       endif()
@@ -954,13 +961,15 @@ macro( tde_create_handbook )
 
   endforeach()
 
-  # if no target specified, try to guess it from DESTIONATION
+  # if no target specified, try to guess it from DESTINATION
   if( NOT _target )
     if( NOT _dest )
       tde_message_fatal( "target name cannot be determined because DESTINATION is not set" )
     endif()
-    string( REPLACE "/" "-" _target "${_dest}-handbook" )
+    string( REPLACE "/" "-" _target "${_dest}" )
   endif()
+
+  set( _target "${_target}-${_lang}-handbook" )
 
   # if no file specified, include all docbooks, stylesheets and images
   if( NOT _srcs )
@@ -980,28 +989,31 @@ macro( tde_create_handbook )
     tde_message_fatal( "no source files" )
   endif()
 
-  # check for index.docbook
-  list( FIND _srcs "index.docbook" _find_index )
-  if( -1 EQUAL _find_index )
-    tde_message_fatal( "missing index.docbook file" )
+  if( NOT _noindex )
+
+    # check for index.docbook
+    list( FIND _srcs "index.docbook" _find_index )
+    if( -1 EQUAL _find_index )
+      tde_message_fatal( "missing index.docbook file" )
+    endif()
+
+    # check for srcdir
+    if( _srcdir )
+      set( _srcdir "--srcdir=${_srcdir}" )
+    endif()
+
+    add_custom_command(
+      OUTPUT index.cache.bz2
+      COMMAND ${KDE3_MEINPROC_EXECUTABLE} ${_srcdir} --check --cache index.cache.bz2 ${CMAKE_CURRENT_SOURCE_DIR}/index.docbook
+      DEPENDS ${_srcs} )
+
+    add_custom_target( ${_target} ALL DEPENDS index.cache.bz2 )
+
+    list( APPEND _srcs ${CMAKE_CURRENT_BINARY_DIR}/index.cache.bz2 )
+
   endif()
 
-  # check for srcdir
-  if( _srcdir )
-    set( _srcdir "--srcdir=${_srcdir}" )
-  endif()
-
-  add_custom_command(
-    OUTPUT index.cache.bz2
-    COMMAND ${KDE3_MEINPROC_EXECUTABLE} ${_srcdir} --check --cache index.cache.bz2 ${CMAKE_CURRENT_SOURCE_DIR}/index.docbook
-    DEPENDS ${_srcs} )
-
-  add_custom_target( ${_target} ALL DEPENDS index.cache.bz2 )
-
-  install( FILES
-      ${CMAKE_CURRENT_BINARY_DIR}/index.cache.bz2 ${_srcs} ${_extra}
-    DESTINATION ${_dest} )
-
+  install( FILES ${_srcs} ${_extra} DESTINATION ${_dest} )
   tde_install_symlink( ${TDE_HTML_DIR}/${_lang}/common ${_dest} )
 
 endmacro( )
