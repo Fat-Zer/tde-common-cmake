@@ -888,6 +888,83 @@ endmacro( tde_add_kdeinit_executable )
 
 #################################################
 #####
+##### tde_create_translation
+
+macro( tde_create_translation )
+
+  unset( _srcs )
+  unset( _lang )
+  unset( _dest )
+  unset( _directive )
+  unset( _var )
+
+  foreach( _arg ${ARGN} )
+
+    # found directive "FILES"
+    if( "${_arg}" STREQUAL "FILES" )
+      unset( _srcs )
+      set( _var _srcs )
+      set( _directive 1 )
+    endif( )
+
+    # found directive "LANG"
+    if( "${_arg}" STREQUAL "LANG" )
+      unset( _lang )
+      set( _var _lang )
+      set( _directive 1 )
+    endif( )
+
+    # found directive "DESTINATION"
+    if( "${_arg}" STREQUAL "DESTINATION" )
+      unset( _dest )
+      set( _var _dest )
+      set( _directive 1 )
+    endif( )
+
+    # collect data
+    if( _directive )
+      unset( _directive )
+    elseif( _var )
+      list( APPEND ${_var} ${_arg} )
+    endif()
+
+  endforeach( )
+
+  if( NOT MSGFMT_EXECUTABLE )
+    tde_message_fatal( "MSGFMT_EXECUTABLE variable is not defined" )
+  elseif( NOT _lang )
+    tde_message_fatal( "missing LANG directive" )
+  elseif( NOT _dest )
+    set( _dest "${LOCALE_INSTALL_DIR}/${_lang}/LC_MESSAGES" )
+  endif( )
+
+  # if no file specified, include all *.po files
+  if( NOT _srcs )
+    file( GLOB _srcs RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.po  )
+  endif()
+  if( NOT _srcs )
+    tde_message_fatal( "no source files" )
+  endif()
+
+  # generate *.mo files
+  foreach( _src ${_srcs} )
+    get_filename_component( _src ${_src} ABSOLUTE )
+    get_filename_component( _out ${_src} NAME_WE )
+    set( _out_name "${_out}-${_lang}.mo" )
+    set( _out_real_name "${_out}.mo" )
+    add_custom_command(
+      OUTPUT ${_out_name}
+      COMMAND ${MSGFMT_EXECUTABLE} ${_src} -o ${_out_name}
+      DEPENDS ${_src} )
+    add_custom_target( "${_out}-${_lang}-translation" ALL DEPENDS ${_out_name} )
+    install( FILES ${CMAKE_CURRENT_BINARY_DIR}/${_out_name} RENAME ${_out_real_name} DESTINATION ${_dest} )
+  endforeach( )
+
+endmacro( )
+
+
+#################################################
+#####
 ##### tde_create_handbook
 
 macro( tde_create_handbook )
