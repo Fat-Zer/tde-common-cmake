@@ -246,7 +246,7 @@ macro( tde_moc _sources )
 
     get_filename_component( _input_file "${_input_file}" ABSOLUTE )
     get_filename_component( _basename ${_input_file} NAME_WE )
-    set( _output_file "${_basename}.moc" )
+    set( _output_file "${_basename}.moc.cpp" )
     add_custom_command( OUTPUT ${_output_file}
       COMMAND
         ${TMOC_EXECUTABLE} ${_input_file} -o ${_output_file}
