@@ -16,6 +16,12 @@ set( local_ui_file ${_ui_basename}.ui )
 configure_file( ${UI_FILE} ${local_ui_file} COPYONLY )
 execute_process( COMMAND tqt-replace ${local_ui_file} )
 
+# ui.h extension file, if exists
+if( EXISTS "${UI_FILE}.h" )
+  configure_file( ${UI_FILE}.h ${local_ui_file}.h COPYONLY )
+  execute_process( COMMAND tqt-replace ${local_ui_file}.h )
+endif( )
+
 execute_process( COMMAND ${UIC_EXECUTABLE}
   -nounload -tr tr2i18n
   ${local_ui_file}
