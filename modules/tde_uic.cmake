@@ -22,8 +22,13 @@ if( EXISTS "${UI_FILE}.h" )
   execute_process( COMMAND tqt-replace ${local_ui_file}.h )
 endif( )
 
+if( TDE_QTPLUGINS_DIR )
+  set( L -L ${TDE_QTPLUGINS_DIR} )
+endif( )
+
 execute_process( COMMAND ${UIC_EXECUTABLE}
   -nounload -tr tr2i18n
+  ${L}
   ${local_ui_file}
   OUTPUT_VARIABLE _ui_h_content )
 
@@ -31,10 +36,6 @@ if( _ui_h_content )
   string( REGEX REPLACE "#ifndef " "#ifndef UI_" _ui_h_content "${_ui_h_content}" )
   string( REGEX REPLACE "#define " "#define UI_" _ui_h_content "${_ui_h_content}" )
   file( WRITE ${_ui_basename}.h "${_ui_h_content}" )
-endif( )
-
-if( TDE_QTPLUGINS_DIR )
-  set( L -L ${TDE_QTPLUGINS_DIR} )
 endif( )
 
 execute_process( COMMAND ${UIC_EXECUTABLE}
