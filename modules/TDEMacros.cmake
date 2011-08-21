@@ -345,15 +345,15 @@ macro( __tde_internal_process_sources _sources )
 
     # handle .skel files
     elseif( ${_ext} STREQUAL ".skel" )
-      kde3_add_dcop_skels( ${_sources} ${_path}/${_name}.h )
+      trinity_add_dcop_skels( ${_sources} ${_path}/${_name}.h )
 
     # handle .stub files
     elseif( ${_ext} STREQUAL ".stub" )
-      kde3_add_dcop_stubs( ${_sources} ${_path}/${_name}.h )
+      trinity_add_dcop_stubs( ${_sources} ${_path}/${_name}.h )
 
     # handle .kcfgc files
     elseif( ${_ext} STREQUAL ".kcfgc" )
-      kde3_add_kcfg_files( ${_sources} ${_arg} )
+      trinity_add_kcfg_files( ${_sources} ${_arg} )
 
     # handle any other files
     else( ${_ext} STREQUAL ".ui" )
