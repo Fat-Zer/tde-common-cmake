@@ -6,7 +6,7 @@ kde_libs_htmldir=${3}
 export QTDOCDIR=${4}
 
 if [[ ! -d "${top_srcdir}/doc/common/" ]]; then
-	export DOXDATA=$(kde_libs_htmldir)/en/common
+	export DOXDATA=${kde_libs_htmldir}/en/common
 fi
 
 abs_top_srcdir=$(cd ${top_srcdir} && pwd)
