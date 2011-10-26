@@ -799,7 +799,7 @@ macro( tde_add_executable _arg_target )
   # set destination directory
   if( _destination )
     if( _setuid )
-      install( TARGETS ${_target} DESTINATION ${_destination} PERMISSIONS OWNER_READ OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE SETUID )
+      install( TARGETS ${_target} DESTINATION ${_destination} PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE SETUID )
     else( _setuid )
       install( TARGETS ${_target} DESTINATION ${_destination} )
     endif( _setuid )
