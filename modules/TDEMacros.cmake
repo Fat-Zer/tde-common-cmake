@@ -653,7 +653,7 @@ macro( tde_add_library _arg_target )
   if( _destination )
 
     # we export only shared libs (no static, no modules);
-    # also, do not export targets marked as "NO_EXPORT" (usually for kdeinit)
+    # also, do not export targets marked as "NO_EXPORT" (usually for tdeinit)
     if( "SHARED" STREQUAL ${_type} AND NOT _no_export )
 
       # get target properties: output name, version, soversion
@@ -810,12 +810,12 @@ endmacro( tde_add_executable )
 
 #################################################
 #####
-##### tde_add_kdeinit_executable
+##### tde_add_tdeinit_executable
 
-macro( tde_add_kdeinit_executable _target )
+macro( tde_add_tdeinit_executable _target )
 
-  configure_file( ${CMAKE_SOURCE_DIR}/cmake/modules/template_kdeinit_executable.cmake ${_target}_kdeinit_executable.cpp COPYONLY )
-  configure_file( ${CMAKE_SOURCE_DIR}/cmake/modules/template_kdeinit_module.cmake ${_target}_kdeinit_module.cpp COPYONLY )
+  configure_file( ${CMAKE_SOURCE_DIR}/cmake/modules/template_tdeinit_executable.cmake ${_target}_tdeinit_executable.cpp COPYONLY )
+  configure_file( ${CMAKE_SOURCE_DIR}/cmake/modules/template_tdeinit_module.cmake ${_target}_tdeinit_module.cpp COPYONLY )
 
   unset( _sources )
   unset( _runtime_destination )
@@ -870,7 +870,7 @@ macro( tde_add_kdeinit_executable _target )
   endforeach( _arg )
 
   # if destinations are not set, we using some defaults
-  # we assume that kdeinit executable MUST be installed
+  # we assume that tdeinit executable MUST be installed
   # (otherwise why we build it?)
   if( NOT _runtime_destination )
     set( _runtime_destination ${BIN_INSTALL_DIR} )
@@ -883,25 +883,25 @@ macro( tde_add_kdeinit_executable _target )
   endif( NOT _plugin_destination )
 
   # create the library
-  tde_add_library( kdeinit_${_target} ${_sources} SHARED ${_export}
+  tde_add_library( tdeinit_${_target} ${_sources} SHARED ${_export}
     DESTINATION ${_library_destination}
   )
 
   # create the executable
   tde_add_executable( ${_target}
-    SOURCES ${CMAKE_CURRENT_BINARY_DIR}/${_target}_kdeinit_executable.cpp
-    LINK kdeinit_${_target}-shared
+    SOURCES ${CMAKE_CURRENT_BINARY_DIR}/${_target}_tdeinit_executable.cpp
+    LINK tdeinit_${_target}-shared
     DESTINATION ${_runtime_destination}
   )
 
   # create the plugin
   tde_add_kpart( ${_target}
-    SOURCES ${CMAKE_CURRENT_BINARY_DIR}/${_target}_kdeinit_module.cpp
-    LINK kdeinit_${_target}-shared
+    SOURCES ${CMAKE_CURRENT_BINARY_DIR}/${_target}_tdeinit_module.cpp
+    LINK tdeinit_${_target}-shared
     DESTINATION ${_plugin_destination}
   )
 
-endmacro( tde_add_kdeinit_executable )
+endmacro( tde_add_tdeinit_executable )
 
 
 #################################################
