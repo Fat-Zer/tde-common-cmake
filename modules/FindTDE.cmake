@@ -83,4 +83,4 @@ if( NOT TDE_FOUND )
 
 endif( NOT TDE_FOUND )
 
-include( "${TDE_CMAKE_DIR}/kdelibs.cmake" )
+include( "${TDE_CMAKE_DIR}/tdelibs.cmake" )
