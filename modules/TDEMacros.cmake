@@ -871,7 +871,7 @@ macro( tde_add_executable _arg_target )
   endif( _destination )
 
   # embed icon, name, and metadata
-  set( ELF_EMBEDDING_METADATA "\"${_target}\" \"${_description}\" \"${_license}\" \"${_copyright}\" \"${_authors}\" \"${_product}\" \"${_organization}\" \"${_version}\" \"${_datetime}\" \"${_notes}\"" )
+  set( ELF_EMBEDDING_METADATA "\"${_target}\" \"${_description}\" \"${_license}\" \"${_copyright}\" \"${_authors}\" \"${_product}\" \"${_organization}\" \"${_version}\" \"${_datetime}\" \"${_target}\" \"${_notes}\"" )
   separate_arguments( ELF_EMBEDDING_METADATA )
   add_custom_command(
     TARGET ${_target}
