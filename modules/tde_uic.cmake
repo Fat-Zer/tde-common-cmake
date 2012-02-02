@@ -35,6 +35,10 @@ execute_process( COMMAND ${UIC_EXECUTABLE}
 if( _ui_h_content )
   string( REGEX REPLACE "#ifndef " "#ifndef UI_" _ui_h_content "${_ui_h_content}" )
   string( REGEX REPLACE "#define " "#define UI_" _ui_h_content "${_ui_h_content}" )
+  string( REGEX REPLACE "public TQWizard" "public KWizard" _ui_h_content "${_ui_h_content}" )
+  string( REGEX REPLACE "public QWizard" "public KWizard" _ui_h_content "${_ui_h_content}" )
+  string( REGEX REPLACE "#include <ntqwizard.h>" "#include <kwizard.h>" _ui_h_content "${_ui_h_content}" )
+  string( REGEX REPLACE "#include <qwizard.h>" "#include <kwizard.h>" _ui_h_content "${_ui_h_content}" )
   file( WRITE ${_ui_basename}.h "${_ui_h_content}" )
 endif( )
 
@@ -48,5 +52,7 @@ execute_process( COMMAND ${UIC_EXECUTABLE}
 if( _ui_cpp_content )
   string( REGEX REPLACE "tr2i18n\\(\"\"\\)" "QString::null" _ui_cpp_content "${_ui_cpp_content}" )
   string( REGEX REPLACE "tr2i18n\\(\"\", \"\"\\)" "QString::null" _ui_cpp_content "${_ui_cpp_content}" )
+  string( REGEX REPLACE ": TQWizard\\(" ": KWizard(" _ui_cpp_content "${_ui_cpp_content}" )
+  string( REGEX REPLACE ": QWizard\\(" ": KWizard(" _ui_cpp_content "${_ui_cpp_content}" )
   file( WRITE ${_ui_basename}.cpp "#include <kdialog.h>\n#include <klocale.h>\n\n${_ui_cpp_content}" )
 endif( )
