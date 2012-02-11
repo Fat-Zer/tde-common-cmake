@@ -31,11 +31,11 @@ if( NOT TDE_FOUND )
     RESULT_VARIABLE _result
     OUTPUT_STRIP_TRAILING_WHITESPACE )
   if( _result )
-    tde_message_fatal( "Unable to run kde-config!\n KDELIBS are correctly installed?\n Path to kde-config are corect?" )
+    tde_message_fatal( "Unable to run kde-config!\n TDELIBS are correctly installed?\n Path to kde-config are corect?" )
   endif( _result )
 
   # parse kde-config output, to extract TDE version
-  string( REGEX MATCH "KDE: ([0-9\\.]+)" __dummy "${_version}" )
+  string( REGEX MATCH "TDE: ([0-9\\.]+)" __dummy "${_version}" )
   set( TDE_VERSION "${CMAKE_MATCH_1}" )
 
   # ask kde-config for few paths
@@ -62,7 +62,7 @@ if( NOT TDE_FOUND )
       HINTS ${TDE_BIN_INSTALL_DIR}
       OUTPUT_STRIP_TRAILING_WHITESPACE )
     if( NOT ${__var} )
-      tde_message_fatal( "${__prog} are NOT found.\n KDELIBS are correctly installed?" )
+      tde_message_fatal( "${__prog} are NOT found.\n TDELIBS are correctly installed?" )
     endif( NOT ${__var} )
   endmacro( __internal_find_program )
 
