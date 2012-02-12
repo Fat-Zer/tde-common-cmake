@@ -1,6 +1,6 @@
 #################################################
 #
-#  (C) 2010-2011 Serghei Amelian
+#  (C) 2010-2012 Serghei Amelian
 #  serghei (DOT) amelian (AT) gmail.com
 #
 #  (C) 2011-2012 Timothy Pearson
@@ -1282,6 +1282,11 @@ macro( tde_save )
     set( __bak_${_var} ${${_var}} )
   endforeach()
 endmacro()
+
+macro( tde_save_and_set _var )
+  set( __bak_${_var} ${${_var}} )
+  set( ${_var} ${ARGN} )
+endmacro( )
 
 macro( tde_restore )
   foreach( _var ${ARGN} )
