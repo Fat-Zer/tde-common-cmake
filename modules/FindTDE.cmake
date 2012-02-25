@@ -25,14 +25,12 @@ if( NOT TDE_FOUND )
   endif( NOT DEFINED KDECONFIG_EXECUTABLE )
 
   # check for installed trinity version
-  execute_process(
+  tde_execute_process(
     COMMAND ${KDECONFIG_EXECUTABLE} --version
     OUTPUT_VARIABLE _version
     RESULT_VARIABLE _result
-    OUTPUT_STRIP_TRAILING_WHITESPACE )
-  if( _result )
-    tde_message_fatal( "Unable to run kde-config!\n TDELIBS are correctly installed?\n Path to kde-config are corect?" )
-  endif( _result )
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    MESSAGE "Unable to run kde-config!\n TDELIBS are correctly installed?\n Path to kde-config are corect?" )
 
   # parse kde-config output, to extract TDE version
   string( REGEX MATCH "TDE: ([0-9\\.]+)" __dummy "${_version}" )
@@ -40,7 +38,7 @@ if( NOT TDE_FOUND )
 
   # ask kde-config for few paths
   macro( __internal_get_path __type __var )
-    execute_process(
+    tde_execute_process(
       COMMAND ${KDECONFIG_EXECUTABLE} --expandvars --install ${__type}
       OUTPUT_VARIABLE ${__var}
       OUTPUT_STRIP_TRAILING_WHITESPACE )

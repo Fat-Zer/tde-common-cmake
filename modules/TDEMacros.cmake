@@ -29,38 +29,76 @@ endmacro( tde_message_fatal )
 
 #################################################
 #####
+##### tde_get_arg( <ARG_NAME> <COUNT> <RETURN> <REST> <ARGS...> )
+##### ARG_NAME(string): name of an argument to find in ARGS
+##### COUNT(number): argument dimension, a number of items returned in RETURN
+##### RETURN(list ref): items returned for argument as they found in ARGS
+##### REST(list ref): rest of items except argument name and items returned in RETURN
+##### ARGS(list): source list of arguments
+
+macro( tde_get_arg ARG_NAME COUNT RETURN REST )
+  unset( ${RETURN} )
+  unset( ${REST} )
+  list( APPEND ${REST} ${ARGN} )
+  list( FIND ${REST} ${ARG_NAME} _arg_idx)
+  if( NOT ${_arg_idx} EQUAL -1 )
+    list( APPEND ${REST} ___ensure_list___ )
+    list( REMOVE_AT ${REST} ${_arg_idx} )
+    list( REMOVE_ITEM ${REST} ___ensure_list___ )
+    set( _i 0 )
+    while( ${_i} LESS ${COUNT} )
+      list( GET ${REST} ${_arg_idx} _arg )
+      list( REMOVE_AT ${REST} ${_arg_idx} )
+      list( APPEND ${RETURN} ${_arg} )
+      math( EXPR _i "${_i} + 1" )
+    endwhile()
+  endif()
+endmacro( tde_get_arg )
+
+
+################################################
+#####
+##### tde_execute_process( <ARGS...> [MESSAGE <MSG>] )
+##### MSG: fatal error message (standard message will be written if not supplied)
+##### ARGS: execute_process arguments
+
+macro( tde_execute_process )
+  tde_get_arg( MESSAGE 1 _message _rest_args ${ARGV} )
+  tde_get_arg( RESULT_VARIABLE 1 _result_variable _tmp ${_rest_args} )
+  tde_get_arg( COMMAND 1 _command _tmp ${_rest_args} )
+  if( NOT DEFINED _result_variable )
+    list( APPEND _rest_args RESULT_VARIABLE _exec_result )
+    set( _result_variable _exec_result )
+  endif()
+  execute_process( ${_rest_args} )
+  if( ${_result_variable} )
+    if( DEFINED _message )
+      message( FATAL_ERROR ${_message} )
+    else()
+      if( ${${_result_variable}} MATCHES "^[0-9]+$" )
+        set( ${_result_variable} "status ${${_result_variable}} returned!" )
+      endif()
+      message( FATAL_ERROR "Error executing '${_command}': ${${_result_variable}}" )
+    endif()
+  endif()
+endmacro( tde_execute_process )
+
+
+if( DEFINED MASTER_SOURCE_DIR )
+  return( )
+endif( )
+########### slave part ends here ###############
+
+
+################################################
+#####
 ##### tde_install_icons( <icons...> THEME <svgicons> DESTINATION <destdir> )
 ##### default theme: hicolor
 ##### default destination: ${SHARE_INSTALL_DIR}/icons
 
 macro( tde_install_icons )
-
-  # clearing
-  unset( _dest )
-  unset( _req_theme )
-  unset( _icons )
-  set( _var _icons )
-
-  # parse all arguments
-  foreach( _arg ${ARGV} )
-    # directive DESTINATION
-    if( _arg STREQUAL "DESTINATION" )
-      set( _var _dest )
-      set( _directive 1 )
-    endif( _arg STREQUAL "DESTINATION" )
-    # directive THEME
-    if( _arg STREQUAL "THEME" )
-      set( _var _req_theme )
-      set( _directive 1 )
-    endif( _arg STREQUAL "THEME" )
-    # collect data
-    if( _directive )
-      unset( _directive )
-    else( _directive )
-      set( ${_var} ${${_var}} ${_arg} )
-      set( _var _icons )
-    endif( _directive )
-  endforeach( _arg )
+  tde_get_arg( DESTINATION 1 _dest _args ${ARGV} )
+  tde_get_arg( THEME 1 _req_theme _icons ${_args} )
 
   #defaults
   if( NOT _icons )
@@ -232,6 +270,8 @@ macro( tde_add_ui_files _sources )
         -DUIC_EXECUTABLE:FILEPATH=${UIC_EXECUTABLE}
         -DTDE_QTPLUGINS_DIR:FILEPATH=${TDE_QTPLUGINS_DIR}
         -DUI_FILE:FILEPATH=${_ui_absolute_path}
+        -DMASTER_SOURCE_DIR:FILEPATH=${CMAKE_SOURCE_DIR}
+        -DMASTER_BINARY_DIR:FILEPATH=${CMAKE_BINARY_DIR}
         -P ${CMAKE_MODULE_PATH}/tde_uic.cmake
       COMMAND ${MOC_EXECUTABLE} ${_ui_basename}.h >> ${_ui_basename}.cpp
       DEPENDS ${_ui_absolute_path} )
@@ -702,7 +742,7 @@ endmacro( tde_add_kpart )
 #####
 ##### tde_curdatetime
 macro( tde_curdatetime result )
-  execute_process( COMMAND "date" "+%m/%d/%Y %H:%M:%S" OUTPUT_VARIABLE ${result} )
+  tde_execute_process( COMMAND "date" "+%m/%d/%Y %H:%M:%S" OUTPUT_VARIABLE ${result} )
   string( REGEX REPLACE "(..)/(..)/(....) (........).*" "\\1/\\2/\\3 \\4" ${result} ${${result}} )
 endmacro( tde_curdatetime )
 

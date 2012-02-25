@@ -20,7 +20,7 @@ if( NOT TQT_FOUND )
 endif( )
 
 # tmoc_executable
-execute_process(
+tde_execute_process(
   COMMAND pkg-config tqt --variable=tmoc_executable
   OUTPUT_VARIABLE TMOC_EXECUTABLE OUTPUT_STRIP_TRAILING_WHITESPACE )
 
@@ -32,7 +32,7 @@ endif( )
 
 
 # moc_executable
-execute_process(
+tde_execute_process(
   COMMAND pkg-config tqt --variable=moc_executable
   OUTPUT_VARIABLE MOC_EXECUTABLE OUTPUT_STRIP_TRAILING_WHITESPACE )
 
@@ -44,7 +44,7 @@ endif( )
 
 
 # uic_executable
-execute_process(
+tde_execute_process(
   COMMAND pkg-config tqt --variable=uic_executable
   OUTPUT_VARIABLE UIC_EXECUTABLE OUTPUT_STRIP_TRAILING_WHITESPACE )
 
