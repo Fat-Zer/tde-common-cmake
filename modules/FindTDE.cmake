@@ -14,13 +14,13 @@ if( NOT TDE_FOUND )
   message( STATUS "checking for 'TDE'")
 
   # if the path is not already defined by user,
-  # find kde-config executable
+  # find tde-config executable
   if( NOT DEFINED KDECONFIG_EXECUTABLE )
     find_program( KDECONFIG_EXECUTABLE
-      NAMES kde-config
+      NAMES tde-config
       HINTS ${BIN_INSTALL_DIR} )
     if( NOT KDECONFIG_EXECUTABLE )
-      tde_message_fatal( "kde-config are NOT found." )
+      tde_message_fatal( "tde-config are NOT found." )
     endif( NOT KDECONFIG_EXECUTABLE )
   endif( NOT DEFINED KDECONFIG_EXECUTABLE )
 
@@ -30,13 +30,13 @@ if( NOT TDE_FOUND )
     OUTPUT_VARIABLE _version
     RESULT_VARIABLE _result
     OUTPUT_STRIP_TRAILING_WHITESPACE
-    MESSAGE "Unable to run kde-config!\n TDELIBS are correctly installed?\n Path to kde-config are corect?" )
+    MESSAGE "Unable to run tde-config!\n TDELIBS are correctly installed?\n Path to tde-config are corect?" )
 
-  # parse kde-config output, to extract TDE version
+  # parse tde-config output, to extract TDE version
   string( REGEX MATCH "TDE: ([0-9\\.]+)" __dummy "${_version}" )
   set( TDE_VERSION "${CMAKE_MATCH_1}" )
 
-  # ask kde-config for few paths
+  # ask tde-config for few paths
   macro( __internal_get_path __type __var )
     tde_execute_process(
       COMMAND ${KDECONFIG_EXECUTABLE} --expandvars --install ${__type}
@@ -71,8 +71,8 @@ if( NOT TDE_FOUND )
   __internal_find_program( kconfig_compiler KDE3_KCFGC_EXECUTABLE )
   __internal_find_program( makekdewidgets KDE3_MAKEKDEWIDGETS_EXECUTABLE )
 
-  # dcopidlng is a bash script which using kde-config;
-  # if PATH to kde-config is not set, dcopidlng will fail;
+  # dcopidlng is a bash script which using tde-config;
+  # if PATH to tde-config is not set, dcopidlng will fail;
   # for this reason we set KDECONFIG environment variable before running dcopidlng
   set( KDE3_DCOPIDLNG_EXECUTABLE env KDECONFIG=${KDECONFIG_EXECUTABLE} ${KDE3_DCOPIDLNG_EXECUTABLE}
     CACHE INTERNAL KDE3_DCOPIDLNG_EXECUTABLE FORCE )
