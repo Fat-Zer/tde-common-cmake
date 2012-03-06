@@ -13,17 +13,24 @@ if( NOT TDE_FOUND )
 
   message( STATUS "checking for 'TDE'")
 
+  pkg_search_module( TDE tqt )
+
+  if( NOT TDE_FOUND )
+    tde_message_fatal( "Unable to find tdelibs!\n Try adding the directory in which the tdelibs.pc file is located\nto the PKG_CONFIG_PATH variable." )
+  endif( )
+
   # if the path is not already defined by user,
   # find tde-config executable
   if( NOT DEFINED KDECONFIG_EXECUTABLE )
     find_program( KDECONFIG_EXECUTABLE
       NAMES tde-config
-      HINTS ${BIN_INSTALL_DIR} )
+      HINTS "${TDE_PREFIX}/bin" ${BIN_INSTALL_DIR} )
     if( NOT KDECONFIG_EXECUTABLE )
       tde_message_fatal( "tde-config are NOT found." )
     endif( NOT KDECONFIG_EXECUTABLE )
   endif( NOT DEFINED KDECONFIG_EXECUTABLE )
 
+  set( ENV{LD_LIBRARY_PATH} "${TDE_LIBDIR}:$ENV{LD_LIBRARY_PATH}" )
   # check for installed trinity version
   tde_execute_process(
     COMMAND ${KDECONFIG_EXECUTABLE} --version
@@ -41,6 +48,7 @@ if( NOT TDE_FOUND )
     tde_execute_process(
       COMMAND ${KDECONFIG_EXECUTABLE} --expandvars --install ${__type}
       OUTPUT_VARIABLE ${__var}
+      CACHE INTERNAL "TDE ${__type} path" FORCE
       OUTPUT_STRIP_TRAILING_WHITESPACE )
   endmacro( __internal_get_path )
 
@@ -57,11 +65,12 @@ if( NOT TDE_FOUND )
   macro( __internal_find_program __prog __var )
     find_program( ${__var}
       NAMES ${__prog}
-      HINTS ${TDE_BIN_INSTALL_DIR}
+      HINTS "${TDE_PREFIX}/bin" ${BIN_INSTALL_DIR}
       OUTPUT_STRIP_TRAILING_WHITESPACE )
     if( NOT ${__var} )
       tde_message_fatal( "${__prog} are NOT found.\n TDELIBS are correctly installed?" )
     endif( NOT ${__var} )
+    set( ${__var} ${${__var}} CACHE INTERNAL "${__prog} executable" FORCE )
   endmacro( __internal_find_program )
 
   __internal_find_program( dcopidl KDE3_DCOPIDL_EXECUTABLE )
@@ -75,7 +84,7 @@ if( NOT TDE_FOUND )
   # if PATH to tde-config is not set, dcopidlng will fail;
   # for this reason we set KDECONFIG environment variable before running dcopidlng
   set( KDE3_DCOPIDLNG_EXECUTABLE env KDECONFIG=${KDECONFIG_EXECUTABLE} ${KDE3_DCOPIDLNG_EXECUTABLE}
-    CACHE INTERNAL KDE3_DCOPIDLNG_EXECUTABLE FORCE )
+    CACHE INTERNAL "dcopidlng executable" FORCE )
 
   message( STATUS "  found 'TDE', version ${TDE_VERSION}" )
 
