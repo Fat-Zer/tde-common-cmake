@@ -24,11 +24,11 @@ tde_execute_process(
   COMMAND pkg-config tqt --variable=tmoc_executable
   OUTPUT_VARIABLE TMOC_EXECUTABLE OUTPUT_STRIP_TRAILING_WHITESPACE )
 
-if( TMOC_EXECUTABLE )
-  tqt_message( "  tmoc path: ${TMOC_EXECUTABLE}" )
-else( )
-  tde_message_fatal( "Path to tmoc is not set.\n tqt is correctly installed?" )
+if( NOT EXISTS ${TMOC_EXECUTABLE} )
+  tde_message_fatal( "tmoc is not found!\n tqt is correctly installed?" )
 endif( )
+
+tqt_message( "  tmoc path: ${TMOC_EXECUTABLE}" )
 
 
 # moc_executable
@@ -36,11 +36,11 @@ tde_execute_process(
   COMMAND pkg-config tqt --variable=moc_executable
   OUTPUT_VARIABLE MOC_EXECUTABLE OUTPUT_STRIP_TRAILING_WHITESPACE )
 
-if( MOC_EXECUTABLE )
-  tqt_message( "  moc path: ${MOC_EXECUTABLE}" )
-else( )
+if( NOT EXISTS ${MOC_EXECUTABLE} )
   tde_message_fatal( "Path to moc is not set.\n tqt is correctly installed?" )
 endif( )
+
+tqt_message( "  moc path: ${MOC_EXECUTABLE}" )
 
 
 # uic_executable
@@ -48,11 +48,21 @@ tde_execute_process(
   COMMAND pkg-config tqt --variable=uic_executable
   OUTPUT_VARIABLE UIC_EXECUTABLE OUTPUT_STRIP_TRAILING_WHITESPACE )
 
-if( UIC_EXECUTABLE )
-  tqt_message( "  uic path: ${UIC_EXECUTABLE}" )
-else( )
-  tde_message_fatal( "Path to uic is not set.\n tqt is correctly installed?" )
+if( NOT EXISTS ${UIC_EXECUTABLE} )
+  tde_message_fatal( "uic not found!\n tqt is correctly installed?" )
 endif( )
+
+tqt_message( "  uic path: ${UIC_EXECUTABLE}" )
+
+
+# tqt-replace script
+set( TQT_REPLACE_SCRIPT "${TQT_PREFIX}/bin/tqt-replace" )
+
+if( NOT EXISTS ${TQT_REPLACE_SCRIPT} )
+  tde_message_fatal( "tqt-replace not found!\n Check tqt installation." )
+endif( )
+
+tqt_message( "  tqt-replace path: ${TQT_REPLACE_SCRIPT}" )
 
 
 # check if tqt is usable

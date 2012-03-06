@@ -35,6 +35,7 @@ macro( tde_setup_paths )
   _tde_internal_setup_path( SBIN_INSTALL_DIR          "${EXEC_INSTALL_PREFIX}/sbin"                 "The install dir for system executables (default ${EXEC_INSTALL_PREFIX}/sbin)" )
   _tde_internal_setup_path( LIB_INSTALL_DIR           "${EXEC_INSTALL_PREFIX}/lib${LIB_SUFFIX}"     "The subdirectory relative to the install prefix where libraries will be installed (default is ${EXEC_INSTALL_PREFIX}/lib${LIB_SUFFIX})" )
   _tde_internal_setup_path( LIBEXEC_INSTALL_DIR       "${LIB_INSTALL_DIR}/trinity/libexec"             "The subdirectory relative to the install prefix where libraries will be installed (default is ${LIB_INSTALL_DIR}/trinity/libexec)" )
+  _tde_internal_setup_path( PKGCONFIG_INSTALL_DIR     "${LIB_INSTALL_DIR}/pkgconfig"                "The install dir for pkg-config metadata files" )
   _tde_internal_setup_path( INCLUDE_INSTALL_DIR       "${CMAKE_INSTALL_PREFIX}/include"             "The subdirectory to the header prefix" )
 
   _tde_internal_setup_path( CMAKE_INSTALL_DIR         "${SHARE_INSTALL_PREFIX}/cmake"               "The install dir for cmake import modules" )

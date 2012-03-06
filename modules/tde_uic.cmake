@@ -17,12 +17,12 @@ get_filename_component( _ui_basename ${UI_FILE} NAME_WE )
 # FIXME this will working only on out-of-source mode
 set( local_ui_file ${_ui_basename}.ui )
 configure_file( ${UI_FILE} ${local_ui_file} COPYONLY )
-tde_execute_process( COMMAND tqt-replace ${local_ui_file} )
+tde_execute_process( COMMAND ${TQT_REPLACE_SCRIPT} ${local_ui_file} )
 
 # ui.h extension file, if exists
 if( EXISTS "${UI_FILE}.h" )
   configure_file( ${UI_FILE}.h ${local_ui_file}.h COPYONLY )
-  tde_execute_process( COMMAND tqt-replace ${local_ui_file}.h )
+  tde_execute_process( COMMAND ${TQT_REPLACE_SCRIPT} ${local_ui_file}.h )
 endif( )
 
 if( TDE_QTPLUGINS_DIR )

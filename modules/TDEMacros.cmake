@@ -42,9 +42,7 @@ macro( tde_get_arg ARG_NAME COUNT RETURN REST )
   list( APPEND ${REST} ${ARGN} )
   list( FIND ${REST} ${ARG_NAME} _arg_idx)
   if( NOT ${_arg_idx} EQUAL -1 )
-    list( APPEND ${REST} ___ensure_list___ )
     list( REMOVE_AT ${REST} ${_arg_idx} )
-    list( REMOVE_ITEM ${REST} ___ensure_list___ )
     set( _i 0 )
     while( ${_i} LESS ${COUNT} )
       list( GET ${REST} ${_arg_idx} _arg )
@@ -66,19 +64,38 @@ macro( tde_execute_process )
   tde_get_arg( MESSAGE 1 _message _rest_args ${ARGV} )
   tde_get_arg( RESULT_VARIABLE 1 _result_variable _tmp ${_rest_args} )
   tde_get_arg( COMMAND 1 _command _tmp ${_rest_args} )
+  tde_get_arg( OUTPUT_VARIABLE 1 _output_variable _tmp ${_rest_args} )
+  tde_get_arg( CACHE 3 _cache _rest_args2 ${_rest_args} )
+
+  # handle optional FORCE parameter
+  if( DEFINED _cache )
+    list( GET _cache 2 _tmp )
+    if( _tmp STREQUAL FORCE )
+      set( _rest_args ${_rest_args2} )
+    else()
+      tde_get_arg( CACHE 2 _cache _rest_args ${_rest_args} )
+    endif()
+  endif()
+
   if( NOT DEFINED _result_variable )
     list( APPEND _rest_args RESULT_VARIABLE _exec_result )
     set( _result_variable _exec_result )
   endif()
+
   execute_process( ${_rest_args} )
+
+  if( DEFINED _output_variable AND DEFINED _cache )
+    set( ${_output_variable} ${${_output_variable}} CACHE ${_cache} )
+  endif()
+
   if( ${_result_variable} )
     if( DEFINED _message )
-      message( FATAL_ERROR ${_message} )
+      tde_message_fatal( ${_message} )
     else()
       if( ${${_result_variable}} MATCHES "^[0-9]+$" )
         set( ${_result_variable} "status ${${_result_variable}} returned!" )
       endif()
-      message( FATAL_ERROR "Error executing '${_command}': ${${_result_variable}}" )
+      tde_message_fatal( "Error executing '${_command}': ${${_result_variable}}" )
     endif()
   endif()
 endmacro( tde_execute_process )
@@ -268,6 +285,7 @@ macro( tde_add_ui_files _sources )
     add_custom_command( OUTPUT ${_ui_basename}.h ${_ui_basename}.cpp
       COMMAND ${CMAKE_COMMAND}
         -DUIC_EXECUTABLE:FILEPATH=${UIC_EXECUTABLE}
+        -DTQT_REPLACE_SCRIPT:FILEPATH=${TQT_REPLACE_SCRIPT}
         -DTDE_QTPLUGINS_DIR:FILEPATH=${TDE_QTPLUGINS_DIR}
         -DUI_FILE:FILEPATH=${_ui_absolute_path}
         -DMASTER_SOURCE_DIR:FILEPATH=${CMAKE_SOURCE_DIR}
