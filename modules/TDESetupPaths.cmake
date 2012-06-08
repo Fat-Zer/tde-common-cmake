@@ -61,7 +61,7 @@ macro( tde_setup_paths )
   _tde_internal_setup_path( INFO_INSTALL_DIR          "${SHARE_INSTALL_PREFIX}/info"                "The info install dir (default ${SHARE_INSTALL_PREFIX}/info)" )
 
   _tde_internal_setup_path( XDG_MENU_INSTALL_DIR      "${SYSCONF_INSTALL_DIR}/xdg/menus"            "The XDG menus dir" )
-  _tde_internal_setup_path( XDG_APPS_INSTALL_DIR      "${SHARE_INSTALL_PREFIX}/applications/kde"    "The XDG apps dir" )
+  _tde_internal_setup_path( XDG_APPS_INSTALL_DIR      "${SHARE_INSTALL_PREFIX}/applications/tde"    "The XDG apps dir" )
   _tde_internal_setup_path( XDG_DIRECTORY_INSTALL_DIR "${SHARE_INSTALL_PREFIX}/desktop-directories" "The XDG directory" )
   _tde_internal_setup_path( XDG_MIME_INSTALL_DIR      "${SHARE_INSTALL_PREFIX}/mime/packages"       "The install dir for the xdg mimetypes" )
 
