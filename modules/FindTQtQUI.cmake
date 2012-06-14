@@ -19,18 +19,6 @@ if( NOT TQTQUI_FOUND )
   tde_message_fatal( "Unable to find tqtqui!\n Try adding the directory in which the tqtqui.pc file is located\nto the PKG_CONFIG_PATH variable." )
 endif( )
 
-# tmoc_executable
-tde_execute_process(
-  COMMAND pkg-config tqtqui --variable=tmoc_executable
-  OUTPUT_VARIABLE TMOC_EXECUTABLE OUTPUT_STRIP_TRAILING_WHITESPACE )
-
-if( NOT EXISTS ${TMOC_EXECUTABLE} )
-  tde_message_fatal( "tmoc is not found!\n tqtqui is correctly installed?" )
-endif( )
-
-tqtqui_message( "  tmoc path: ${TMOC_EXECUTABLE}" )
-
-
 # check if tqtqui is usable
 tde_save( CMAKE_REQUIRED_INCLUDES CMAKE_REQUIRED_LIBRARIES )
 set( CMAKE_REQUIRED_INCLUDES ${TQTQUI_INCLUDE_DIRS} )
