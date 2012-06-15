@@ -86,6 +86,6 @@ tde_restore( CMAKE_REQUIRED_INCLUDES CMAKE_REQUIRED_LIBRARIES )
 
 
 # TQT_CXX_FLAGS
-foreach( _flag ${TQT_CFLAGS_OTHER} )
+foreach( _flag ${TQT_CFLAGS} ${TQT_CFLAGS_OTHER} )
   set( TQT_CXX_FLAGS "${TQT_CXX_FLAGS} ${_flag}" )
 endforeach()
