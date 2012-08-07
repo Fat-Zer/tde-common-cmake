@@ -40,7 +40,7 @@ if( NOT TDE_FOUND )
     MESSAGE "Unable to run tde-config!\n TDELIBS are correctly installed?\n Path to tde-config are corect?" )
 
   # parse tde-config output, to extract TDE version
-  string( REGEX MATCH "TDE: ([0-9\\.]+)" __dummy "${_version}" )
+  string( REGEX MATCH "TDE: R([0-9\\.]+).*" __dummy "${_version}" )
   set( TDE_VERSION "${CMAKE_MATCH_1}" )
 
   # ask tde-config for few paths
