@@ -128,7 +128,7 @@ macro( tde_install_icons )
   foreach( _icon ${_icons} )
     unset( _theme ) # clearing
 
-    file(GLOB _icon_files *-${_icon}.png _icon_files *-${_icon}.svg* )
+    file(GLOB _icon_files *-${_icon}.png *-${_icon}.mng _icon_files *-${_icon}.svg* )
     foreach( _icon_file ${_icon_files} )
       # FIXME need a review
       string( REGEX MATCH "^.*/([a-zA-Z][a-zA-Z])([0-9a-zA-Z]+)\\-([a-z]+)\\-(.+)$" _dummy  "${_icon_file}" )
