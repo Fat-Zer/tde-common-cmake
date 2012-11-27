@@ -1242,10 +1242,12 @@ macro( tde_create_handbook )
 
     list( APPEND _srcs ${CMAKE_CURRENT_BINARY_DIR}/index.cache.bz2 )
 
+    tde_install_empty_directory( ${_dest} )
+    tde_install_symlink( ${TDE_HTML_DIR}/${_lang}/common ${_dest} )
+
   endif()
 
   install( FILES ${_srcs} ${_extra} DESTINATION ${_dest} )
-  tde_install_symlink( ${TDE_HTML_DIR}/${_lang}/common ${_dest} )
 
 endmacro( )
 
