@@ -131,7 +131,7 @@ macro( tde_install_icons )
     file(GLOB _icon_files *-${_icon}.png *-${_icon}.mng _icon_files *-${_icon}.svg* )
     foreach( _icon_file ${_icon_files} )
       # FIXME need a review
-      string( REGEX MATCH "^.*/([a-zA-Z][a-zA-Z])([0-9a-zA-Z]+)\\-([a-z]+)\\-(.+)$" _dummy  "${_icon_file}" )
+      string( REGEX MATCH "^.*/([a-zA-Z][a-zA-Z])([0-9a-zA-Z]+)\\-([a-z]+)\\-([^/]+)$" _dummy  "${_icon_file}" )
       set( _type  "${CMAKE_MATCH_1}" )
       set( _size  "${CMAKE_MATCH_2}" )
       set( _group "${CMAKE_MATCH_3}" )
