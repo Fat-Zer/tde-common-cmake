@@ -89,3 +89,7 @@ tde_restore( CMAKE_REQUIRED_INCLUDES CMAKE_REQUIRED_LIBRARIES )
 foreach( _flag ${TQT_CFLAGS} ${TQT_CFLAGS_OTHER} )
   set( TQT_CXX_FLAGS "${TQT_CXX_FLAGS} ${_flag}" )
 endforeach()
+
+# Set compiler flags according to build type
+set( CMAKE_CXX_FLAGS_RELWITHDEBINFO "-DNDEBUG" )
+set( CMAKE_C_FLAGS_RELWITHDEBINFO   "-DNDEBUG" )
