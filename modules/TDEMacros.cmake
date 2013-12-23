@@ -1426,11 +1426,11 @@ endif( )
 ##### tde_setup_architecture_flags
 
 macro( tde_setup_architecture_flags )
-  message( STATUS "Detected ${CMAKE_SYSTEM_PROCESSOR} CPU architecture" )  
-  ## Immediate symbol binding is not available on ARM architectures
-  if(${CMAKE_SYSTEM_PROCESSOR} MATCHES arm*)
-    set( LINKER_IMMEDIATE_BINDING_FLAGS "" CACHE INTERNAL "" FORCE )
-  else( )
+  message( STATUS "Detected ${CMAKE_SYSTEM_PROCESSOR} CPU architecture" )
+  ## Immediate symbol binding is available only for gcc but not on ARM architectures
+  if( ${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" AND NOT ${CMAKE_SYSTEM_PROCESSOR} MATCHES arm* )
     set( LINKER_IMMEDIATE_BINDING_FLAGS "-z\ now" CACHE INTERNAL "" FORCE )
+  else( )
+    set( LINKER_IMMEDIATE_BINDING_FLAGS "" CACHE INTERNAL "" FORCE )
   endif( )
 endmacro( )
