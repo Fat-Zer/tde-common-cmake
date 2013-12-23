@@ -685,15 +685,16 @@ macro( tde_add_library _arg_target )
 
   # set interface libraries (only for shared)
   unset( _shared_libs )
-  foreach( _lib ${_link} )
-    #get_target_property( _lib_type ${_lib} TYPE )
-    #if( NOT "STATIC_LIBRARY" STREQUAL "${_lib_type}" )
-    if( NOT ${_lib} MATCHES ".+-static" )
-      list( APPEND _shared_libs ${_lib} )
-    endif( NOT ${_lib} MATCHES ".+-static" )
-    #endif( NOT "STATIC_LIBRARY" STREQUAL "${_lib_type}" )
-  endforeach( _lib )
-  target_link_libraries( ${_target} LINK_INTERFACE_LIBRARIES ${_shared_libs} )
+  if( NOT ${_type} STREQUAL "STATIC" )
+    foreach( _lib ${_link} )
+      #get_target_property( _lib_type ${_lib} TYPE )
+      #if( NOT "STATIC_LIBRARY" STREQUAL "${_lib_type}" )
+      if( NOT ${_lib} MATCHES ".+-static" )
+        list( APPEND _shared_libs ${_lib} )
+      endif( NOT ${_lib} MATCHES ".+-static" )
+      #endif( NOT "STATIC_LIBRARY" STREQUAL "${_lib_type}" )
+    endforeach( _lib )
+  endif( NOT ${_type} STREQUAL "STATIC" )
 
   # set embedded archives
   if( _embed )
@@ -702,8 +703,18 @@ macro( tde_add_library _arg_target )
 
   # set link libraries
   if( _link )
-    target_link_libraries( ${_target} ${_link} )
+    if( _embed AND ${CMAKE_VERSION} VERSION_EQUAL "2.8.12.0" )
+      # hack for broken CMake 2.8.12.0
+      set_target_properties( ${_target} PROPERTIES LINK_LIBRARIES "${_link}" )
+    else( _embed AND  ${CMAKE_VERSION} VERSION_EQUAL "2.8.12.0" )
+      target_link_libraries( ${_target} ${_link} )
+    endif( _embed AND  ${CMAKE_VERSION} VERSION_EQUAL "2.8.12.0" )
   endif( )
+  if( _shared_libs )
+    set_target_properties( ${_target} PROPERTIES
+                           LINK_INTERFACE_LIBRARIES "${_shared_libs}"
+                           INTERFACE_LINK_LIBRARIES "${_shared_libs}" )
+  endif( _shared_libs )
 
   # set dependencies
   if( _dependencies )
