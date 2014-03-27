@@ -86,6 +86,14 @@ if( NOT TDE_FOUND )
   set( KDE3_DCOPIDLNG_EXECUTABLE env KDECONFIG=${KDECONFIG_EXECUTABLE} ${KDE3_DCOPIDLNG_EXECUTABLE}
     CACHE INTERNAL "dcopidlng executable" FORCE )
 
+  # look for SCM data if present
+  if( EXISTS "${CMAKE_SOURCE_DIR}/.tdescmmodule" )
+    file( STRINGS "${CMAKE_SOURCE_DIR}/.tdescmmodule" TDE_SCM_MODULE_NAME )
+  endif( EXISTS "${CMAKE_SOURCE_DIR}/.tdescmmodule" )
+  if( EXISTS "${CMAKE_SOURCE_DIR}/.tdescmrevision" )
+    file( STRINGS "${CMAKE_SOURCE_DIR}/.tdescmrevision" TDE_SCM_MODULE_REVISION )
+  endif( EXISTS "${CMAKE_SOURCE_DIR}/.tdescmrevision" )
+
   message( STATUS "  found 'TDE', version ${TDE_VERSION}" )
 
 endif( NOT TDE_FOUND )

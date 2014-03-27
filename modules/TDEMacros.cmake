@@ -537,6 +537,21 @@ macro( tde_add_library _arg_target )
 
   set( _shouldnotlink no )
 
+  # metadata
+  unset( _description )
+  unset( _license )
+  unset( _copyright )
+  unset( _authors )
+  unset( _product )
+  unset( _organization )
+  unset( _version )
+  unset( _datetime )
+  unset( _notes )
+
+  # default metadata
+  set( _product "Trinity Desktop Environment" )
+  tde_curdatetime( _datetime )
+
   foreach( _arg ${ARGV} )
 
     # this variable help us to skip
@@ -616,6 +631,44 @@ macro( tde_add_library _arg_target )
       set( _storage "_destination" )
       unset( ${_storage} )
     endif( "${_arg}" STREQUAL "DESTINATION" )
+
+   # metadata
+    if( "${_arg}" STREQUAL "DESCRIPTION" )
+      set( _skip_store 1 )
+      set( _storage "_description" )
+    endif( )
+    if( "${_arg}" STREQUAL "LICENSE" )
+      set( _skip_store 1 )
+      set( _storage "_license" )
+    endif( )
+    if( "${_arg}" STREQUAL "COPYRIGHT" )
+      set( _skip_store 1 )
+      set( _storage "_copyright" )
+    endif( )
+    if( "${_arg}" STREQUAL "AUTHORS" )
+      set( _skip_store 1 )
+      set( _storage "_authors" )
+    endif( )
+    if( "${_arg}" STREQUAL "PRODUCT" )
+      set( _skip_store 1 )
+      set( _storage "_product" )
+    endif( )
+    if( "${_arg}" STREQUAL "ORGANIZATION" )
+      set( _skip_store 1 )
+      set( _storage "_organization" )
+    endif( )
+    if( "${_arg}" STREQUAL "VERSION" )
+      set( _skip_store 1 )
+      set( _storage "_version" )
+    endif( )
+    if( "${_arg}" STREQUAL "DATETIME" )
+      set( _skip_store 1 )
+      set( _storage "_datetime" )
+    endif( )
+    if( "${_arg}" STREQUAL "NOTES" )
+      set( _skip_store 1 )
+      set( _storage "_notes" )
+    endif( )
 
     # storing value
     if( _storage AND NOT _skip_store )
@@ -817,6 +870,7 @@ macro( tde_add_executable _arg_target )
 
   # default metadata
   set( _product "Trinity Desktop Environment" )
+  set( _version "${TDE_VERSION}" )
   tde_curdatetime( _datetime )
 
   foreach( _arg ${ARGV} )
