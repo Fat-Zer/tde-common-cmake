@@ -818,6 +818,14 @@ macro( tde_add_library _arg_target )
       COMMAND ${CMAKE_INSTALL_PREFIX}/bin/tdelfeditor -m ${CMAKE_CURRENT_BINARY_DIR}/${_soname} ${ELF_EMBEDDING_METADATA} || true
       COMMAND ${CMAKE_INSTALL_PREFIX}/bin/tdelfeditor -e ${CMAKE_CURRENT_BINARY_DIR}/${_soname} || true
     )
+    if( _version )
+      add_custom_command(
+        TARGET ${_target}
+        POST_BUILD
+        COMMAND ${CMAKE_INSTALL_PREFIX}/bin/tdelfeditor -m ${CMAKE_CURRENT_BINARY_DIR}/${_soname}.${_version} ${ELF_EMBEDDING_METADATA} || true
+        COMMAND ${CMAKE_INSTALL_PREFIX}/bin/tdelfeditor -e ${CMAKE_CURRENT_BINARY_DIR}/${_soname}.${_version} || true
+      )
+    endif( )
   endif( EXISTS ${CMAKE_INSTALL_PREFIX}/bin/tdelfeditor )
 
 endmacro( tde_add_library )
