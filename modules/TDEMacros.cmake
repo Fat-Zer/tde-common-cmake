@@ -732,7 +732,15 @@ macro( tde_add_library _arg_target )
 
   # set version
   if( _version )
-    string( REGEX MATCH "^[0-9]+" _soversion ${_version} )
+    if( ${CMAKE_SYSTEM_NAME} STREQUAL "OpenBSD" )
+      # OpenBSD: _soversion and _version both contains only major and minor
+      string( REGEX MATCH "^([0-9]+)\\.([0-9]+)\\.([0-9]+)$" _dummy  "${_version}" )
+      set( _version  "${CMAKE_MATCH_1}.${CMAKE_MATCH_2}" )
+      set( _soversion  "${CMAKE_MATCH_1}.${CMAKE_MATCH_2}" )
+    else( ${CMAKE_SYSTEM_NAME} STREQUAL "OpenBSD" )
+      # General (Linux) case: _soversion contains only the major number of version
+      string( REGEX MATCH "^[0-9]+" _soversion ${_version} )
+    endif( ${CMAKE_SYSTEM_NAME} STREQUAL "OpenBSD" )
     set_target_properties( ${_target} PROPERTIES VERSION ${_version} SOVERSION ${_soversion} )
   endif( _version )
 
@@ -1513,7 +1521,7 @@ endif( )
 macro( tde_setup_architecture_flags )
   message( STATUS "Detected ${CMAKE_SYSTEM_PROCESSOR} CPU architecture" )
   ## Immediate symbol binding is available only for gcc but not on ARM architectures
-  if( ${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" AND NOT ${CMAKE_SYSTEM_PROCESSOR} MATCHES arm* )
+  if( ${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" AND NOT ${CMAKE_SYSTEM_PROCESSOR} MATCHES arm* AND NOT ${CMAKE_SYSTEM_NAME} STREQUAL "OpenBSD" )
     set( LINKER_IMMEDIATE_BINDING_FLAGS "-z\ now" CACHE INTERNAL "" FORCE )
   else( )
     set( LINKER_IMMEDIATE_BINDING_FLAGS "" CACHE INTERNAL "" FORCE )
