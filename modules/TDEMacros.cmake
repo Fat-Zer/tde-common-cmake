@@ -109,6 +109,17 @@ endif( )
 
 ################################################
 #####
+##### CMP0026 states we should not read the LOCATION property of a target,
+##### and should be using generators instead. We can't do that here however
+##### because we need the value of the property at configure time.
+
+if( POLICY CMP0026 )
+  cmake_policy( SET CMP0026 OLD )
+endif( POLICY CMP0026 )
+
+
+################################################
+#####
 ##### tde_install_icons( <icons...> THEME <svgicons> DESTINATION <destdir> )
 ##### default theme: hicolor
 ##### default destination: ${SHARE_INSTALL_DIR}/icons
