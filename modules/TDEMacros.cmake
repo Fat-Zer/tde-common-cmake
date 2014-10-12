@@ -13,6 +13,7 @@
 #################################################
 
 include( KDE3Macros ) # we will need this module for a while
+include( CheckCXXCompilerFlag )
 
 
 #################################################
@@ -1023,6 +1024,12 @@ macro( tde_add_executable _arg_target )
     add_dependencies( ${_target} ${_dependencies} )
   endif( _dependencies )
 
+  # set PIE flags for setuid binaries
+  if( _setuid )
+    set_target_properties( ${_target} PROPERTIES COMPILE_FLAGS ${TDE_PIE_CFLAGS} )
+    set_target_properties( ${_target} PROPERTIES LINK_FLAGS ${TDE_PIE_LDFLAGS} )
+  endif( _setuid )
+
   # set destination directory
   if( _destination )
     if( _setuid )
@@ -1537,4 +1544,10 @@ macro( tde_setup_architecture_flags )
   else( )
     set( LINKER_IMMEDIATE_BINDING_FLAGS "" CACHE INTERNAL "" FORCE )
   endif( )
+
+  check_cxx_compiler_flag( -fPIE HAVE_PIE_SUPPORT )
+  if( HAVE_PIE_SUPPORT )
+    set( TDE_PIE_CFLAGS -fPIE )
+    set( TDE_PIE_LDFLAGS -pie )
+  endif( HAVE_PIE_SUPPORT )
 endmacro( )
