@@ -1026,8 +1026,8 @@ macro( tde_add_executable _arg_target )
 
   # set PIE flags for setuid binaries
   if( _setuid )
-    set_target_properties( ${_target} PROPERTIES COMPILE_FLAGS ${TDE_PIE_CFLAGS} )
-    set_target_properties( ${_target} PROPERTIES LINK_FLAGS ${TDE_PIE_LDFLAGS} )
+    set_target_properties( ${_target} PROPERTIES COMPILE_FLAGS "${TDE_PIE_CFLAGS}" )
+    set_target_properties( ${_target} PROPERTIES LINK_FLAGS "${TDE_PIE_LDFLAGS}" )
   endif( _setuid )
 
   # set destination directory
