@@ -1254,6 +1254,7 @@ macro( tde_create_translation )
       get_filename_component( _out ${_src} NAME_WE )
     endif( )
 
+    string( REPLACE "@" "_" _target ${_real_lang} )
     set( _out_filename "${_out}-${_real_lang}.mo" )
     set( _install_filename "${_out}.mo" )
 
@@ -1261,7 +1262,7 @@ macro( tde_create_translation )
       OUTPUT ${_out_filename}
       COMMAND ${MSGFMT_EXECUTABLE} ${_src} -o ${_out_filename}
       DEPENDS ${_src} )
-    add_custom_target( "${_out}-${_real_lang}-translation" ALL DEPENDS ${_out_filename} )
+    add_custom_target( "${_out}-${_target}-translation" ALL DEPENDS ${_out_filename} )
     install( FILES ${CMAKE_CURRENT_BINARY_DIR}/${_out_filename} RENAME ${_install_filename} DESTINATION ${_dest} )
 
   endforeach( )
