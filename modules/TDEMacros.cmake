@@ -115,6 +115,7 @@ endif( )
 ##### because we need the value of the property at configure time.
 
 if( POLICY CMP0026 )
+  cmake_policy( PUSH )
   cmake_policy( SET CMP0026 OLD )
 endif( POLICY CMP0026 )
 
@@ -1555,3 +1556,13 @@ macro( tde_setup_architecture_flags )
     set( TDE_PIE_LDFLAGS -pie )
   endif( HAVE_PIE_SUPPORT )
 endmacro( )
+
+
+################################################
+#####
+##### Restore CMP0026 policy
+
+if( POLICY CMP0026 )
+  cmake_policy( POP )
+endif( POLICY CMP0026 )
+
