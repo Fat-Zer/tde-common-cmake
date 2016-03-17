@@ -835,13 +835,7 @@ macro( tde_add_library _arg_target )
   # embed name and metadata
   set( ELF_EMBEDDING_METADATA "\"${_target}\" \"${_description}\" \"${_license}\" \"${_copyright}\" \"${_authors}\" \"${_product}\" \"${_organization}\" \"${_version}\" \"${_datetime}\" \"x-sharedlib\" \"${TDE_SCM_MODULE_NAME}\" \"${TDE_SCM_MODULE_REVISION}\" \"${_notes}\"" )
   separate_arguments( ELF_EMBEDDING_METADATA )
-  if( EXISTS ${CMAKE_INSTALL_PREFIX}/bin/tdelfeditor )
-    add_custom_command(
-      TARGET ${_target}
-      POST_BUILD
-      COMMAND ${CMAKE_INSTALL_PREFIX}/bin/tdelfeditor -m ${CMAKE_CURRENT_BINARY_DIR}/${_soname} ${ELF_EMBEDDING_METADATA} || true
-      COMMAND ${CMAKE_INSTALL_PREFIX}/bin/tdelfeditor -e ${CMAKE_CURRENT_BINARY_DIR}/${_soname} || true
-    )
+  if( EXISTS ${CMAKE_INSTALL_PREFIX}/bin/tdelfeditor AND _soname )
     if( _version )
       add_custom_command(
         TARGET ${_target}
@@ -849,8 +843,15 @@ macro( tde_add_library _arg_target )
         COMMAND ${CMAKE_INSTALL_PREFIX}/bin/tdelfeditor -m ${CMAKE_CURRENT_BINARY_DIR}/${_soname}.${_version} ${ELF_EMBEDDING_METADATA} || true
         COMMAND ${CMAKE_INSTALL_PREFIX}/bin/tdelfeditor -e ${CMAKE_CURRENT_BINARY_DIR}/${_soname}.${_version} || true
       )
+    else( )
+      add_custom_command(
+        TARGET ${_target}
+        POST_BUILD
+        COMMAND ${CMAKE_INSTALL_PREFIX}/bin/tdelfeditor -m ${CMAKE_CURRENT_BINARY_DIR}/${_soname} ${ELF_EMBEDDING_METADATA} || true
+        COMMAND ${CMAKE_INSTALL_PREFIX}/bin/tdelfeditor -e ${CMAKE_CURRENT_BINARY_DIR}/${_soname} || true
+      )
     endif( )
-  endif( EXISTS ${CMAKE_INSTALL_PREFIX}/bin/tdelfeditor )
+  endif( EXISTS ${CMAKE_INSTALL_PREFIX}/bin/tdelfeditor AND _soname )
 
 endmacro( tde_add_library )
 
