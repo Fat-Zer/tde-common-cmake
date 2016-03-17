@@ -79,6 +79,7 @@ if( NOT TDE_FOUND )
   __internal_find_program( meinproc KDE3_MEINPROC_EXECUTABLE )
   __internal_find_program( tdeconfig_compiler KDE3_KCFGC_EXECUTABLE )
   __internal_find_program( maketdewidgets KDE3_MAKETDEWIDGETS_EXECUTABLE )
+  __internal_find_program( tdelfeditor TDELFEDITOR_EXECUTABLE )
 
   # dcopidlng is a bash script which using tde-config;
   # if PATH to tde-config is not set, dcopidlng will fail;
