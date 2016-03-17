@@ -58,4 +58,10 @@ if( _ui_cpp_content )
   string( REGEX REPLACE ": TQWizard\\(" ": KWizard(" _ui_cpp_content "${_ui_cpp_content}" )
   string( REGEX REPLACE ": QWizard\\(" ": KWizard(" _ui_cpp_content "${_ui_cpp_content}" )
   file( WRITE ${_ui_basename}.cpp "#include <kdialog.h>\n#include <tdelocale.h>\n\n${_ui_cpp_content}" )
+
+  tde_execute_process( COMMAND ${MOC_EXECUTABLE}
+    ${_ui_basename}.h
+    OUTPUT_VARIABLE _ui_h_moc_content )
+  file( APPEND ${_ui_basename}.cpp "${_ui_h_moc_content}" )
+
 endif( )

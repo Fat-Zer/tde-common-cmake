@@ -303,11 +303,11 @@ macro( tde_add_ui_files _sources )
         -DUIC_EXECUTABLE:FILEPATH=${UIC_EXECUTABLE}
         -DTQT_REPLACE_SCRIPT:FILEPATH=${TQT_REPLACE_SCRIPT}
         -DTDE_QTPLUGINS_DIR:FILEPATH=${TDE_QTPLUGINS_DIR}
+        -DMOC_EXECUTABLE:FILEPATH=${MOC_EXECUTABLE}
         -DUI_FILE:FILEPATH=${_ui_absolute_path}
         -DMASTER_SOURCE_DIR:FILEPATH=${CMAKE_SOURCE_DIR}
         -DMASTER_BINARY_DIR:FILEPATH=${CMAKE_BINARY_DIR}
         -P ${CMAKE_MODULE_PATH}/tde_uic.cmake
-      COMMAND ${MOC_EXECUTABLE} ${_ui_basename}.h >> ${_ui_basename}.cpp
       DEPENDS ${_ui_absolute_path} )
 
   endforeach( _ui_file )
