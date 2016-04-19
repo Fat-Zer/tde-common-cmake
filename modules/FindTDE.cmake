@@ -68,7 +68,7 @@ if( NOT TDE_FOUND )
       HINTS "${TDE_PREFIX}/bin" ${BIN_INSTALL_DIR}
       OUTPUT_STRIP_TRAILING_WHITESPACE )
     if( NOT ${__var} )
-      tde_message_fatal( "${__prog} are NOT found.\n TDELIBS are correctly installed?" )
+      tde_message_fatal( "${__prog} is NOT found.\n TDELIBS are correctly installed?" )
     endif( NOT ${__var} )
     set( ${__var} ${${__var}} CACHE INTERNAL "${__prog} executable" FORCE )
   endmacro( __internal_find_program )
@@ -79,7 +79,9 @@ if( NOT TDE_FOUND )
   __internal_find_program( meinproc KDE3_MEINPROC_EXECUTABLE )
   __internal_find_program( tdeconfig_compiler KDE3_KCFGC_EXECUTABLE )
   __internal_find_program( maketdewidgets KDE3_MAKETDEWIDGETS_EXECUTABLE )
-  __internal_find_program( tdelfeditor TDELFEDITOR_EXECUTABLE )
+  # Don't use __internal_find_program due to it's not mandatory
+  find_program( TDELFEDITOR_EXECUTABLE NAMES tdelfeditor
+    HINTS "${TDE_PREFIX}/bin" ${BIN_INSTALL_DIR} OUTPUT_STRIP_TRAILING_WHITESPACE )
 
   # dcopidlng is a bash script which using tde-config;
   # if PATH to tde-config is not set, dcopidlng will fail;
