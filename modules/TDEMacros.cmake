@@ -550,6 +550,7 @@ macro( tde_add_library _arg_target )
   unset( _link )
   unset( _dependencies )
   unset( _storage )
+  unset( _exclude_from_all )
 
   set( _shouldnotlink no )
 
@@ -648,6 +649,12 @@ macro( tde_add_library _arg_target )
       unset( ${_storage} )
     endif( "+${_arg}" STREQUAL "+DESTINATION" )
 
+    # found directive "EXCLUDE_FROM_ALL"
+    if( "+${_arg}" STREQUAL "+EXCLUDE_FROM_ALL" )
+      set( _skip_store 1 )
+      set( _exclude_from_all "EXCLUDE_FROM_ALL" )
+    endif( "+${_arg}" STREQUAL "+EXCLUDE_FROM_ALL" )
+
    # metadata
     if( "+${_arg}" STREQUAL "+DESCRIPTION" )
       set( _skip_store 1 )
@@ -728,7 +735,7 @@ macro( tde_add_library _arg_target )
   endif( _automoc )
 
   # add target
-  add_library( ${_target} ${_type} ${_sources} )
+  add_library( ${_target} ${_type} ${_exclude_from_all} ${_sources} )
 
   # we assume that modules have no prefix and no version
   # also, should not link
@@ -1058,6 +1065,106 @@ macro( tde_add_executable _arg_target )
   endif( TDELFEDITOR_EXECUTABLE )
 
 endmacro( tde_add_executable )
+
+
+#################################################
+#####
+##### tde_add_check_executable
+
+macro( tde_add_check_executable _arg_target )
+
+  unset( _target )
+  unset( _automoc )
+  unset( _meta_includes )
+  unset( _sources )
+  unset( _destination )
+  unset( _link )
+  unset( _dependencies )
+  unset( _storage )
+
+  foreach( _arg ${ARGV} )
+
+    # this variable help us to skip
+    # storing unapropriate values (i.e. directives)
+    unset( _skip_store )
+
+    # found directive "AUTOMOC"
+    if( "+${_arg}" STREQUAL "+AUTOMOC" )
+      set( _skip_store 1 )
+      set( _automoc 1 )
+    endif( "+${_arg}" STREQUAL "+AUTOMOC" )
+
+    # found directive "META_INCLUDES"
+    if( "+${_arg}" STREQUAL "+META_INCLUDES" )
+      set( _skip_store 1 )
+      set( _storage "_meta_includes" )
+    endif( )
+
+    # found directive "SOURCES"
+    if( "+${_arg}" STREQUAL "+SOURCES" )
+      set( _skip_store 1 )
+      set( _storage "_sources" )
+    endif( "+${_arg}" STREQUAL "+SOURCES" )
+
+    # found directive "LINK"
+    if( "+${_arg}" STREQUAL "+LINK" )
+      set( _skip_store 1 )
+      set( _storage "_link" )
+    endif( "+${_arg}" STREQUAL "+LINK" )
+
+    # found directive "DEPENDENCIES"
+    if( "+${_arg}" STREQUAL "+DEPENDENCIES" )
+      set( _skip_store 1 )
+      set( _storage "_dependencies" )
+    endif( "+${_arg}" STREQUAL "+DEPENDENCIES" )
+
+    # storing value
+    if( _storage AND NOT _skip_store )
+      #set( ${_storage} "${${_storage}} ${_arg}" )
+      list( APPEND ${_storage} ${_arg} )
+    endif( _storage AND NOT _skip_store )
+
+  endforeach( _arg )
+
+  set( _target "${_arg_target}" )
+
+  # try to aotudetect sources
+  if( NOT _sources )
+    file( GLOB _sources "${_target}.cpp" "${_target}.cxx" "${_target}.c" )
+    if( NOT _sources )
+      message( FATAL_ERROR "\nNo sources found for test executable \"${_target}\"." )
+    endif( )
+  endif( NOT _sources )
+
+  # processing different types of sources
+  __tde_internal_process_sources( _sources ${_sources} )
+
+  # set automoc
+  if( _automoc )
+    tde_automoc( ${_sources} )
+  endif( _automoc )
+
+  # add target
+  add_executable( ${_target} EXCLUDE_FROM_ALL ${_sources} )
+
+  # set link libraries
+  if( _link )
+    target_link_libraries( ${_target} ${_link} )
+  endif( _link )
+
+  # set dependencies
+  if( _dependencies )
+    add_dependencies( ${_target} ${_dependencies} )
+  endif( _dependencies )
+
+  # Create make check target
+  if(NOT TARGET check)
+      add_custom_target(check)
+  endif(NOT TARGET check)
+
+  add_dependencies( check ${_target} )
+
+endmacro( tde_add_check_executable )
 
 
 #################################################
