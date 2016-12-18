@@ -1075,6 +1075,7 @@ macro( tde_add_check_executable _arg_target )
 
   unset( _target )
   unset( _automoc )
+  unset( _test )
   unset( _meta_includes )
   unset( _sources )
   unset( _destination )
@@ -1093,6 +1094,12 @@ macro( tde_add_check_executable _arg_target )
       set( _skip_store 1 )
       set( _automoc 1 )
     endif( "+${_arg}" STREQUAL "+AUTOMOC" )
+
+    # found directive "TEST"
+    if( "+${_arg}" STREQUAL "+TEST" )
+      set( _skip_store 1 )
+      set( _test 1 )
+  endif( "+${_arg}" STREQUAL "+TEST" )
 
     # found directive "META_INCLUDES"
     if( "+${_arg}" STREQUAL "+META_INCLUDES" )
@@ -1163,6 +1170,17 @@ macro( tde_add_check_executable _arg_target )
   endif(NOT TARGET check)
 
   add_dependencies( check ${_target} )
+
+  # add test target
+  if( _test )
+    # get relative path to currnt directory and strip end tests dir
+    file( RELATIVE_PATH _test_prefix ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR} )
+    string( REGEX REPLACE "(^\\.+/?|(^|/)tests?$|/$)" "" _test_prefix "${_test_prefix}" )
+    if( _test_prefix )
+        set( _test_prefix "${_test_prefix}/" )
+    endif( _test_prefix )
+    add_test( NAME "${_test_prefix}${_target}" COMMAND "${_target}" )
+  endif( _test )
 
 endmacro( tde_add_check_executable )
 
